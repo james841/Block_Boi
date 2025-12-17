@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
-// GET - Fetch all category showcases
+
 export async function GET() {
   try {
     const categories = await prisma.categoryShowcase.findMany({

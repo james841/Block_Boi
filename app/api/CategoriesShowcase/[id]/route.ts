@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 // PUT - Update category showcase
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }  // ← Changed here
 ) {
   try {
     const session = await getServerSession();
@@ -13,7 +13,13 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = parseInt(params.id);
+    const { id: idStr } = await params;  // ← Await params
+    const id = parseInt(idStr);
+
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "Invalid category ID" }, { status: 400 });
+    }
+
     const body = await request.json();
     const { title, imageUrl, slug } = body;
 
@@ -63,7 +69,7 @@ export async function PUT(
 // DELETE - Delete category showcase
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }  // ← Changed here
 ) {
   try {
     const session = await getServerSession();
@@ -71,7 +77,12 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const id = parseInt(params.id);
+    const { id: idStr } = await params;  // ← Await params
+    const id = parseInt(idStr);
+
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "Invalid category ID" }, { status: 400 });
+    }
 
     await prisma.categoryShowcase.delete({
       where: { id },
