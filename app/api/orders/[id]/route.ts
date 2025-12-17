@@ -8,9 +8,11 @@ import { prisma } from '@/lib/prisma';
 // Get single order
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;  // id is already a string from the URL
+
     const adminSession = await getAdminSession();
     const userSession = await getServerSession(authOptions);
 
@@ -22,10 +24,10 @@ export async function GET(
     }
 
     const order = await prisma.order.findUnique({
-      where: { id: params.id },
+      where: { id },  // ← Pass directly as string
       include: {
         items: true,
-        shippingAddress: true, // ← ADD THIS
+        shippingAddress: true,
         user: {
           select: {
             name: true,
@@ -43,7 +45,7 @@ export async function GET(
       );
     }
 
-    // If user (not admin), check ownership
+    // If regular user (not admin), check ownership
     if (!adminSession && userSession) {
       if (order.userId !== userSession.user.id) {
         return NextResponse.json(
@@ -66,9 +68,11 @@ export async function GET(
 // UPDATE ORDER (status OR isNew)
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;  // string ID
+
     const session = await getAdminSession();
     
     if (!session) {
@@ -82,17 +86,17 @@ export async function PATCH(
     const { status, isNew } = body;
 
     const updateData: any = {};
-    if (status) updateData.status = status;
-    if (isNew !== undefined) updateData.isNew = isNew; // ← THIS IS NEW
+    if (status !== undefined) updateData.status = status;
+    if (isNew !== undefined) updateData.isNew = isNew;
 
     const order = await prisma.order.update({
-      where: { id: params.id },
+      where: { id },  // ← string
       data: updateData,
       include: {
         items: true,
         shippingAddress: true,
-        user: { select: { name: true, email: true, image: true } }
-      }
+        user: { select: { name: true, email: true, image: true } },
+      },
     });
 
     return NextResponse.json({ success: true, order });
@@ -114,9 +118,11 @@ export async function PATCH(
 // Delete order (Admin only)
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;  // string ID
+
     const session = await getAdminSession();
     
     if (!session) {
@@ -127,7 +133,7 @@ export async function DELETE(
     }
 
     await prisma.order.delete({
-      where: { id: params.id },
+      where: { id },  // ← string
     });
 
     return NextResponse.json({ 
