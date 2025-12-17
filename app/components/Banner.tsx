@@ -38,7 +38,7 @@ export default function Banner() {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-teal-400/20 rounded-3xl blur-xl scale-110 -z-10 group-hover:blur-2xl transition-all duration-500"></div>
               <img
-                src="/block5.png"
+                src="/Images/block5.png"
                 alt="Male model in stylish outfit"
                 className="w-40 h-40 md:w-48 md:h-48 object-cover rounded-3xl border-4 border-white/80 shadow-xl"
               />
@@ -64,7 +64,7 @@ export default function Banner() {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-bl from-blue-400/20 to-teal-400/20 rounded-3xl blur-xl scale-110 -z-10 group-hover:blur-2xl transition-all duration-500"></div>
               <img
-                src="/block6.png"
+                src="/Images/block6.png"
                 alt="Female model in stylish outfit"
                 className="w-40 h-40 md:w-48 md:h-48 object-cover rounded-3xl border-4 border-white/80 shadow-xl"
               />
