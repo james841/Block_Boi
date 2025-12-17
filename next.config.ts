@@ -36,9 +36,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  env: {
-    NEXT_PUBLIC_ADMIN_BASE_PATH: process.env.ADMIN_BASE_PATH,
-  },
+  
 };
 
 export default nextConfig;
