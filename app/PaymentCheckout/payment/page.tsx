@@ -5,7 +5,13 @@ import { useCart } from '../../contexts/CartContext';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { PaystackButton } from 'react-paystack';
+import dynamic from 'next/dynamic';
+
+// Dynamically import PaystackButton to avoid SSR issues
+const PaystackButton = dynamic(
+  () => import('react-paystack').then((mod) => mod.PaystackButton),
+  { ssr: false }
+);
 
 export default function SecurePaymentCheckout() {
   const router = useRouter();
@@ -26,6 +32,7 @@ export default function SecurePaymentCheckout() {
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   // YOUR ORIGINAL STRING ERROR (kept for backward compat)
   const [paymentError, setPaymentError] = useState('');
@@ -37,6 +44,11 @@ export default function SecurePaymentCheckout() {
     message: string;
     reference?: string;
   } | null>(null);
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (session?.user) {
@@ -63,8 +75,17 @@ export default function SecurePaymentCheckout() {
     );
   };
 
-  const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+  // Get public key safely - only on client side
+  const publicKey = isMounted ? process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY : null;
   
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   if (!publicKey) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-600">
@@ -254,7 +275,12 @@ export default function SecurePaymentCheckout() {
               <div className={`mt-3 p-2 bg-white/50 dark:bg-black/20 rounded border ${structuredError.type === 'error' ? 'border-red-300' : 'border-yellow-300'}`}>
                 <p className={`text-xs font-mono ${subtextColors[structuredError.type]}`}>Reference: {structuredError.reference}</p>
                 <button
-                  onClick={() => { navigator.clipboard.writeText(structuredError.reference!); alert('Copied!'); }}
+                  onClick={() => { 
+                    if (typeof navigator !== 'undefined') {
+                      navigator.clipboard.writeText(structuredError.reference!); 
+                      alert('Copied!'); 
+                    }
+                  }}
                   className={`text-xs mt-1 underline ${subtextColors[structuredError.type]}`}
                 >
                   Copy reference
