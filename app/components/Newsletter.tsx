@@ -17,7 +17,7 @@ export default function Newsletter() {
           {/* Image Section */}
           <div className="w-full md:w-1/3 rounded-xl overflow-hidden shadow-md transform hover:scale-105 transition-transform duration-500">
             <img
-              src="/images/block3.avif"
+              src="/block3.avif"
               alt="Beauty hand with cream"
               className="w-full h-auto object-cover"
             />
