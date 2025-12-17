@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Slider" ALTER COLUMN "Button" DROP NOT NULL,
+ALTER COLUMN "subtitle" DROP NOT NULL;
