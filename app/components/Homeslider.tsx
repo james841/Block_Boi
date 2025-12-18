@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Play, Zap } from 'lucide-react';
-import Image from 'next/image'; // ← THIS IS THE GAME CHANGER
+import Image from 'next/image';
 
 type Slide = {
   id: string | number;
@@ -19,10 +19,16 @@ export default function HeroCarousel() {
   const [error, setError] = useState<string | null>(null);
   const [showContent, setShowContent] = useState(true);
 
+  // Touch swipe refs
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
+  const minSwipeDistance = 50; // Minimum distance in px to trigger swipe
+
   useEffect(() => {
     const fetchSlides = async () => {
       try {
-        const res = await fetch('/api/slider', { next: { revalidate: 60 } }); // Optional: ISR
+        const res = await fetch('/api/slider', { next: { revalidate: 60 } });
         if (!res.ok) throw new Error('Failed to load slides');
         const data = await res.json();
         const slidesData = Array.isArray(data) ? data : data.sliders || [];
@@ -37,7 +43,7 @@ export default function HeroCarousel() {
     fetchSlides();
   }, []);
 
-  // Auto-play with cleanup
+  // Auto-play
   useEffect(() => {
     if (slides.length <= 1) return;
     const interval = setInterval(() => {
@@ -51,7 +57,7 @@ export default function HeroCarousel() {
     return () => clearInterval(interval);
   }, [slides.length]);
 
-  // Smooth content fade-in on slide change
+  // Fade content on slide change
   useEffect(() => {
     setShowContent(false);
     const t = setTimeout(() => setShowContent(true), 300);
@@ -60,13 +66,46 @@ export default function HeroCarousel() {
 
   const nextSlide = useCallback(() => {
     setShowContent(false);
-    setTimeout(() => setCurrentIndex((i) => (i + 1) % slides.length), 300);
+    setTimeout(() => {
+      setCurrentIndex((i) => (i + 1) % slides.length);
+    }, 300);
   }, [slides.length]);
 
   const prevSlide = useCallback(() => {
     setShowContent(false);
-    setTimeout(() => setCurrentIndex((i) => (i - 1 + slides.length) % slides.length), 300);
+    setTimeout(() => {
+      setCurrentIndex((i) => (i - 1 + slides.length) % slides.length);
+    }, 300);
   }, [slides.length]);
+
+  // Touch handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchEndX.current = null;
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+
+    const distance = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    }
+    if (isRightSwipe) {
+      prevSlide();
+    }
+
+    // Reset
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
 
   if (isLoading) {
     return (
@@ -87,14 +126,20 @@ export default function HeroCarousel() {
   const currentSlide = slides[currentIndex];
 
   return (
-    <div className="mt-18 relative w-full h-[50vh] md:h-screen overflow-hidden bg-black  bg-cover">
-      {/* Only render current + next slide (performance trick) */}
+    <div
+      className="mt-18 relative w-full h-[50vh] md:h-screen overflow-hidden bg-black select-none"
+      // Touch events for swipe
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Slides */}
       <div className="absolute inset-0">
         {slides.map((slide, index) => {
           const isActive = index === currentIndex;
           const isNext = index === (currentIndex + 1) % slides.length;
 
-          if (!isActive && !isNext) return null; // ← Only render 2 slides max!
+          if (!isActive && !isNext) return null;
 
           return (
             <div
@@ -107,7 +152,7 @@ export default function HeroCarousel() {
                 src={slide.imageUrl}
                 alt={slide.title}
                 fill
-                priority={isActive} // Only current slide loads with priority
+                priority={isActive}
                 quality={85}
                 className="object-cover object-top"
                 placeholder="blur"
@@ -156,10 +201,10 @@ export default function HeroCarousel() {
         </div>
       </div>
 
-      {/* Navigation */}
+      {/* Navigation Arrows - Hidden on mobile */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-4 rounded-full transition-all hover:scale-110 z-10"
+        className="hidden md:block absolute left-4 md:left-8 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-4 rounded-full transition-all hover:scale-110 z-10"
         aria-label="Previous"
       >
         <ChevronLeft className="w-7 h-7" />
@@ -167,14 +212,14 @@ export default function HeroCarousel() {
 
       <button
         onClick={nextSlide}
-        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-4 rounded-full transition-all hover:scale-110 z-10"
+        className="hidden md:block absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-4 rounded-full transition-all hover:scale-110 z-10"
         aria-label="Next"
       >
         <ChevronRight className="w-7 h-7" />
       </button>
 
-      {/* Dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+      {/* Dots - Hidden on mobile */}
+      <div className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 gap-3 z-10">
         {slides.map((_, i) => (
           <button
             key={i}
@@ -188,8 +233,8 @@ export default function HeroCarousel() {
         ))}
       </div>
 
-      {/* Counter */}
-      <div className="absolute top-8 right-8 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20">
+      {/* Counter - Hidden on mobile */}
+      <div className="hidden md:block absolute top-8 right-8 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20">
         <span className="text-white font-bold">
           {currentIndex + 1} / {slides.length}
         </span>

@@ -6,68 +6,83 @@ export default function Banner() {
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#FFF9F0] relative overflow-hidden">
       {/* Subtle animated background glow */}
-      <div className="absolute inset-0 opacity-30">
+      <div className="absolute inset-0 opacity-30 pointer-events-none">
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-gradient-to-br from-amber-400/30 to-teal-400/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-gradient-to-tl from-blue-400/30 to-teal-400/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-gradient-to-tl from-blue-400/30 to-teal-400/30 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <h1 className="text-5xl md:text-6xl font-extrabold text-center mb-12 tracking-tight drop-shadow-lg">
-          <span className="bg-gradient-to-r from-amber-400 via-teal-400 to-blue-400 bg-clip-text text-transparent">
-            Discover Your Style
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-center mb-12 tracking-tight">
+          <span className="bg-gradient-to-r from-amber-400 via-teal-400 to-blue-500 bg-clip-text text-transparent">
+            Discover Your Signature Style
           </span>
         </h1>
 
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Male Collection */}
-          <div className="group w-full md:w-1/2 bg-white/90 backdrop-blur-xl rounded-3xl p-8 flex items-center justify-between shadow-2xl border border-white/50 hover:scale-[1.02] hover:shadow-3xl transition-all duration-500">
-            <div className="max-w-[60%] space-y-4">
-              <h3 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight">
-                Where dreams meet couture
-              </h3>
-              <p className="text-gray-700 text-sm md:text-base leading-relaxed">
-                Elevate your wardrobe with bold, timeless pieces crafted for the modern man.
-              </p>
-              <Link
-                href="/Cloths"
-                className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 via-teal-500 to-blue-500 text-white px-7 py-3.5 rounded-full font-bold text-sm md:text-base shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group-hover:from-amber-600 group-hover:via-teal-600 group-hover:to-blue-600"
-              >
-                Shop Now
-              </Link>
-            </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-teal-400/20 rounded-3xl blur-xl scale-110 -z-10 group-hover:blur-2xl transition-all duration-500"></div>
-              <img
-                src="/Images/block5.png"
-                alt="Male model in stylish outfit"
-                className="w-40 h-40 md:w-48 md:h-48 object-cover rounded-3xl border-4 border-white/80 shadow-xl"
-              />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          {/* Men's Collection */}
+          <div className="group bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden hover:shadow-3xl hover:-translate-y-2 transition-all duration-500">
+            <div className="flex flex-col md:flex-row items-center">
+              {/* Image - Stacks on top on mobile */}
+              <div className="w-full md:w-1/2 p-6 md:p-8 order-1 md:order-2">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-teal-400/20 rounded-3xl blur-2xl scale-110 -z-10 group-hover:blur-3xl transition-all duration-500"></div>
+                  <img
+                    src="/Images/block5.png" // Replace with a better image if needed
+                    alt="Confident man in modern tailored outfit"
+                    className="w-full h-80 md:h-96 object-cover rounded-3xl border-4 border-white/80 shadow-2xl"
+                  />
+                </div>
+              </div>
+
+              {/* Text Content */}
+              <div className="w-full md:w-1/2 p-8 md:p-10 order-2 md:order-1 text-center md:text-left space-y-6">
+                <h3 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
+                  Elevate Your Style
+                </h3>
+                <p className="text-gray-700 text-base md:text-lg leading-relaxed">
+                 Discover timeless pieces that blend luxury with everyday confidence. Handpicked for the modern wardrobe.                </p>
+                <Link
+                  href="/Cloths?category=men" // Optional: filter link if you have categories
+                  className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 via-teal-500 to-blue-500 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                >
+                  Shop Men
+                  <span className="ml-2">→</span>
+                </Link>
+              </div>
             </div>
           </div>
 
-          {/* Female Collection */}
-          <div className="group w-full md:w-1/2 bg-white/90 backdrop-blur-xl rounded-3xl p-8 flex items-center justify-between shadow-2xl border border-white/50 hover:scale-[1.02] hover:shadow-3xl transition-all duration-500">
-            <div className="max-w-[60%] space-y-4">
-              <h3 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight">
-                Enchanting styles for every woman
-              </h3>
-              <p className="text-gray-700 text-sm md:text-base leading-relaxed">
-                Discover elegance and confidence in every stitch — fashion that speaks your soul.
-              </p>
-              <Link
-                href="/Cloths"
-                className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 via-teal-500 to-blue-500 text-white px-7 py-3.5 rounded-full font-bold text-sm md:text-base shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group-hover:from-amber-600 group-hover:via-teal-600 group-hover:to-blue-600"
-              >
-                Shop Now
-              </Link>
-            </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-bl from-blue-400/20 to-teal-400/20 rounded-3xl blur-xl scale-110 -z-10 group-hover:blur-2xl transition-all duration-500"></div>
-              <img
-                src="/Images/block6.png"
-                alt="Female model in stylish outfit"
-                className="w-40 h-40 md:w-48 md:h-48 object-cover rounded-3xl border-4 border-white/80 shadow-xl"
-              />
+          {/* Women's Collection */}
+          <div className="group bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden hover:shadow-3xl hover:-translate-y-2 transition-all duration-500">
+            <div className="flex flex-col md:flex-row items-center">
+              {/* Image */}
+              <div className="w-full md:w-1/2 p-6 md:p-8">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-bl from-blue-400/20 to-teal-400/20 rounded-3xl blur-2xl scale-110 -z-10 group-hover:blur-3xl transition-all duration-500"></div>
+                  <img
+                    src="/Images/block6.png" // Replace with a better image if needed
+                    alt="Elegant woman in contemporary chic outfit"
+                    className="w-full h-80 md:h-96 object-cover rounded-3xl border-4 border-white/80 shadow-2xl"
+                  />
+                </div>
+              </div>
+
+              {/* Text Content */}
+              <div className="w-full md:w-1/2 p-8 md:p-10 text-center md:text-left space-y-6">
+                <h3 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
+                Timeless Elegance 
+                </h3>
+                <p className="text-gray-700 text-base md:text-lg leading-relaxed">
+                  Where classic meets contemporary. Explore premium fabrics and designs crafted for lasting impression.
+                </p>
+                <Link
+                  href="/Cloths?category=women" // Optional: filter link
+                  className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 via-teal-500 to-blue-500 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                >
+                  Shop
+                  <span className="ml-2">→</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
