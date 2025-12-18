@@ -35,7 +35,7 @@ export default function Navigation() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center -ml-4 -mt-8 -mb-8">
               <img
-                src="/logo.png"
+                src="/logoss.png"
                 alt="Block Boi Logo"
                 className="h-20 w-auto object-contain drop-shadow-lg 
                          sm:h-24 md:h-28 lg:h-32 
