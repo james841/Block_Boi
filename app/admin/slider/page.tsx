@@ -10,6 +10,7 @@ import {
   ImageIcon,
   Link2,
   Upload,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,15 +28,17 @@ type Slider = {
 export default function AdminSliderPage() {
   const [sliders, setSliders] = useState<Slider[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
-const [editingSlider, setEditingSlider] = useState<Slider | null>(null);
-const [formData, setFormData] = useState({
-  title: "",
-  imageUrl: "",
-  Button: "",
-  subtitle: "",
-});
+  const [editingSlider, setEditingSlider] = useState<Slider | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    imageUrl: "",
+    Button: "",
+    subtitle: "",
+  });
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [imageChanged, setImageChanged] = useState(false); // Track if image was changed
 
   useEffect(() => {
     fetchSliders();
@@ -56,11 +59,18 @@ const [formData, setFormData] = useState({
   // Image upload handler
   const handleImageChange = (file: File) => {
     if (file && file.type.startsWith("image/")) {
+      // Check file size (max 5MB recommended)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size should be less than 5MB");
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
         setFormData({ ...formData, imageUrl: base64String });
         setImagePreview(base64String);
+        setImageChanged(true); // Mark that image was changed
       };
       reader.readAsDataURL(file);
     }
@@ -76,30 +86,46 @@ const [formData, setFormData] = useState({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!formData.imageUrl) {
       alert("Please upload an image");
       return;
     }
 
+    setSubmitting(true);
+
     try {
       const url = editingSlider ? `/api/slider/${editingSlider.id}` : "/api/slider";
       const method = editingSlider ? "PUT" : "POST";
 
+      // Prepare payload - only send imageUrl if it changed
+      const payload = editingSlider && !imageChanged
+        ? {
+            title: formData.title,
+            Button: formData.Button,
+            subtitle: formData.subtitle,
+            // Don't send imageUrl if it hasn't changed
+          }
+        : formData; // Send full data including imageUrl for new sliders or when image changed
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        fetchSliders();
+        await fetchSliders();
         closeModal();
       } else {
-        alert("Failed to save slider");
+        const error = await res.json();
+        alert(error.error || "Failed to save slider");
       }
     } catch (error) {
       console.error("Error saving slider:", error);
       alert("An error occurred. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -108,8 +134,11 @@ const [formData, setFormData] = useState({
 
     try {
       const res = await fetch(`/api/slider/${id}`, { method: "DELETE" });
-      if (res.ok) fetchSliders();
-      else alert("Failed to delete slider");
+      if (res.ok) {
+        await fetchSliders();
+      } else {
+        alert("Failed to delete slider");
+      }
     } catch (error) {
       alert("Error deleting slider");
     }
@@ -119,6 +148,7 @@ const [formData, setFormData] = useState({
     setEditingSlider(null);
     setFormData({ title: "", imageUrl: "", Button: "", subtitle: "" });
     setImagePreview("");
+    setImageChanged(false);
     setShowModal(true);
   };
 
@@ -131,6 +161,7 @@ const [formData, setFormData] = useState({
       subtitle: slider.subtitle || "",
     });
     setImagePreview(slider.imageUrl);
+    setImageChanged(false); // Reset image changed flag
     setShowModal(true);
   };
 
@@ -139,6 +170,8 @@ const [formData, setFormData] = useState({
     setEditingSlider(null);
     setFormData({ title: "", imageUrl: "", Button: "", subtitle: "" });
     setImagePreview("");
+    setImageChanged(false);
+    setSubmitting(false);
   };
 
   return (
@@ -150,7 +183,7 @@ const [formData, setFormData] = useState({
             <div className="flex items-center gap-6">
               <Link
                 href="/admin/dashboard"
-                className="p-3 rounded-xl bg-white/10 hover:bg-white-white/20 transition-all backdrop-blur-md"
+                className="p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all backdrop-blur-md"
               >
                 <ArrowLeft className="w-6 h-6" />
               </Link>
@@ -267,7 +300,8 @@ const [formData, setFormData] = useState({
                   </h2>
                   <button
                     onClick={closeModal}
-                    className="p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all"
+                    disabled={submitting}
+                    className="p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all disabled:opacity-50"
                   >
                     <X size={24} />
                   </button>
@@ -281,9 +315,10 @@ const [formData, setFormData] = useState({
                     <input
                       type="text"
                       required
+                      disabled={submitting}
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-5 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full px-5 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:opacity-50"
                       placeholder="Summer Collection 2025"
                     />
                   </div>
@@ -292,9 +327,10 @@ const [formData, setFormData] = useState({
                     <label className="block text-sm font-medium text-gray-300 mb-2">Subtitle</label>
                     <input
                       type="text"
+                      disabled={submitting}
                       value={formData.subtitle}
                       onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                      className="w-full px-5 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500"
+                      className="w-full px-5 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 disabled:opacity-50"
                       placeholder="Up to 50% off on selected items"
                     />
                   </div>
@@ -305,9 +341,10 @@ const [formData, setFormData] = useState({
                     </label>
                     <input
                       type="text"
+                      disabled={submitting}
                       value={formData.Button}
                       onChange={(e) => setFormData({ ...formData, Button: e.target.value })}
-                      className="w-full px-5 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500"
+                      className="w-full px-5 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 disabled:opacity-50"
                       placeholder="Shop Now"
                     />
                   </div>
@@ -316,6 +353,9 @@ const [formData, setFormData] = useState({
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Image <span className="text-red-400">*</span>
+                      {editingSlider && !imageChanged && (
+                        <span className="ml-2 text-xs text-green-400">(Using existing image)</span>
+                      )}
                     </label>
                     <div
                       onDrop={handleDrop}
@@ -325,6 +365,7 @@ const [formData, setFormData] = useState({
                       <input
                         type="file"
                         accept="image/*"
+                        disabled={submitting}
                         onChange={(e) => e.target.files?.[0] && handleImageChange(e.target.files[0])}
                         className="hidden"
                         id="slider-image-upload"
@@ -333,25 +374,30 @@ const [formData, setFormData] = useState({
                         {imagePreview ? (
                           <div className="relative h-64 rounded-xl overflow-hidden border border-white/20">
                             <Image src={imagePreview} alt="Preview" fill className="object-cover" />
-                            <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <p className="text-white font-medium">Change Image</p>
-                            </div>
+                            {!submitting && (
+                              <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <p className="text-white font-medium">
+                                  {imageChanged ? "Change Image" : "Click to change image"}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <div className="space-y-4">
                             <Upload className="w-12 h-12 mx-auto text-gray-400" />
                             <p className="text-gray-400">Drop your image here or click to browse</p>
-                            <p className="text-xs text-gray-500">JPG, PNG, WebP • Max 10MB</p>
+                            <p className="text-xs text-gray-500">JPG, PNG, WebP • Max 5MB</p>
                           </div>
                         )}
                       </label>
 
-                      {imagePreview && (
+                      {imagePreview && !submitting && (
                         <button
                           type="button"
                           onClick={() => {
                             setFormData({ ...formData, imageUrl: "" });
                             setImagePreview("");
+                            setImageChanged(true);
                           }}
                           className="mt-4 text-sm text-red-400 hover:text-red-300"
                         >
@@ -365,15 +411,24 @@ const [formData, setFormData] = useState({
                     <button
                       type="button"
                       onClick={closeModal}
-                      className="flex-1 px-6 py-4 border border-white/20 text-gray-300 rounded-xl hover:bg-white/10 transition-all"
+                      disabled={submitting}
+                      className="flex-1 px-6 py-4 border border-white/20 text-gray-300 rounded-xl hover:bg-white/10 transition-all disabled:opacity-50"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all"
+                      disabled={submitting}
+                      className="flex-1 px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      {editingSlider ? "Update Slider" : "Create Slider"}
+                      {submitting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          {editingSlider ? "Updating..." : "Creating..."}
+                        </>
+                      ) : (
+                        <>{editingSlider ? "Update Slider" : "Create Slider"}</>
+                      )}
                     </button>
                   </div>
                 </form>

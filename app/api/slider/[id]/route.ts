@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 // PUT - Update slider
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }  // ← Async params for Next.js 15+
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession();
@@ -13,8 +13,8 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id: idStr } = await params;  // ← Await params
-    const id = parseInt(idStr, 10);     // ← Convert string to number
+    const { id: idStr } = await params;
+    const id = parseInt(idStr, 10);
 
     if (isNaN(id)) {
       return NextResponse.json({ error: "Invalid slider ID" }, { status: 400 });
@@ -23,24 +23,31 @@ export async function PUT(
     const body = await request.json();
     const { title, imageUrl, Button, subtitle } = body;
 
-    if (!title || !imageUrl) {
+    if (!title) {
       return NextResponse.json(
-        { error: "Title and imageUrl are required" },
+        { error: "Title is required" },
         { status: 400 }
       );
     }
 
+    // Prepare update data - only include fields that are provided
+    const updateData: any = {
+      title,
+      Button: Button || null,
+      subtitle: subtitle || null,
+    };
+
+    // Only update imageUrl if it's provided (meaning it was changed)
+    if (imageUrl) {
+      updateData.imageUrl = imageUrl;
+    }
+
     const slider = await prisma.slider.update({
-      where: { id },  // ← Now number
-      data: {
-        title,
-        imageUrl,
-        Button: Button || null,
-        subtitle: subtitle || null,
-      },
+      where: { id },
+      data: updateData,
     });
 
-    console.log("✅ Slider updated:", slider);
+    console.log("✅ Slider updated:", slider.id, "- Image updated:", !!imageUrl);
 
     return NextResponse.json({ slider });
   } catch (error: any) {
@@ -55,7 +62,7 @@ export async function PUT(
 // DELETE - Delete slider
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }  // ← Async params
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession();
@@ -63,15 +70,15 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id: idStr } = await params;  // ← Await params
-    const id = parseInt(idStr, 10);     // ← Convert to number
+    const { id: idStr } = await params;
+    const id = parseInt(idStr, 10);
 
     if (isNaN(id)) {
       return NextResponse.json({ error: "Invalid slider ID" }, { status: 400 });
     }
 
     await prisma.slider.delete({
-      where: { id },  // ← Now number
+      where: { id },
     });
 
     console.log("✅ Slider deleted:", id);
