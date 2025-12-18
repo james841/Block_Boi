@@ -36,7 +36,7 @@ export default function Footer() {
         {/* Brand */}
         <div className="space-y-1 ">
           <div className="flex items-center gap-3">
-            <Image src="/logoss.png" alt="Block Boi Logo" width={100} height={100} className="text-cyan-400 animate-pulse-slow" />
+            <Image src="/logos.png" alt="Block Boi Logo" width={100} height={100} className="text-cyan-400 animate-pulse-slow" />
             <h2 className="text-2xl font-bold">Block Boi</h2>
           </div>
           <p className="text-gray-400 text-sm max-w-xs">
