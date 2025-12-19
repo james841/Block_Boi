@@ -50,39 +50,37 @@ export default function ProductList({
   const [isPaginationLoading, setIsPaginationLoading] = useState(false);
   const [likedProducts, setLikedProducts] = useState<Set<number>>(new Set());
 
-  // Sync categories from prop changes
+  // Sync categories from prop changes (e.g. category page)
   useEffect(() => {
     if (category) {
       setSelectedCategories([category]);
     }
   }, [category]);
 
-  // Debounce search input
+  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
-    }, 300);
+    }, 500); // Slightly longer debounce for better UX
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Update URL when filters or search change (but don't trigger fetch)
+  // Update URL without triggering full reload
   useEffect(() => {
     if (!category) {
       const params = new URLSearchParams();
-      if (selectedCategories.length) {
+      if (selectedCategories.length > 0) {
         params.set("category", selectedCategories.join(","));
       }
       if (debouncedSearch) {
         params.set("search", debouncedSearch);
       }
-      const queryString = params.toString();
-      router.replace(queryString ? `?${queryString}` : window.location.pathname, { 
-        scroll: false 
-      });
+      const query = params.toString();
+      router.replace(query ? `?${query}` : "/Cloths", { scroll: false });
     }
   }, [selectedCategories, debouncedSearch, router, category]);
 
-  // Load liked products from localStorage
+  // Load liked products
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("likedProducts");
@@ -96,9 +94,8 @@ export default function ProductList({
     }
   }, []);
 
-  // Memoized fetch function
+  // Memoized fetch — now benefits from server cache when applicable
   const fetchProducts = useCallback(async (page: number, isPaginating: boolean = false) => {
-    // Set appropriate loading state
     if (isPaginating) {
       setIsPaginationLoading(true);
     } else if (debouncedSearch && page === 1) {
@@ -108,37 +105,47 @@ export default function ProductList({
     }
 
     try {
-      const base = `/api/Products?page=${page}&limit=12`;
-      const catParam = selectedCategories.length
-        ? `&category=${selectedCategories.map(encodeURIComponent).join(",")}`
-        : "";
-      const searchParam = debouncedSearch
-        ? `&search=${encodeURIComponent(debouncedSearch)}`
-        : "";
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: "12",
+      });
 
-      const url = `${base}${catParam}${searchParam}`;
-      console.log('Fetching:', url);
-      
-      const res = await fetch(url);
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      // Only add filters if they exist — this allows cache hit when none are applied
+      if (selectedCategories.length > 0) {
+        params.set("category", selectedCategories.join(","));
       }
-      
+      if (debouncedSearch) {
+        params.set("search", debouncedSearch);
+      }
+
+      // Optional: Add ?refresh=true to URL to force bypass cache (for debugging)
+      const url = `/api/Products?${params.toString()}`;
+      console.log("Fetching products:", url);
+
+      const res = await fetch(url, {
+        next: { revalidate: 60 }, // Optional: ISR fallback
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
       const data = await res.json();
 
-      setProducts(data.products ?? []);
-      setTotalPages(data.pagination?.totalPages ?? 1);
+      // Handle both cached and fresh responses
+      if (data.success === false) {
+        throw new Error(data.message || "Failed to load products");
+      }
 
-      // Extract unique categories
-      const cats = [
-        ...new Set(
-          data.products?.map((p: Product) => p.category).filter(Boolean)
-        ),
-      ] as string[];
-      setAllCategories(cats);
-      
-      console.log('Fetched:', data.products?.length, 'products');
+      const productList = data.products || [];
+      setProducts(productList);
+      setTotalPages(data.pagination?.totalPages || 1);
+
+      // Extract categories from current products
+      const uniqueCats = Array.from(
+        new Set(productList.map((p: Product) => p.category).filter(Boolean))
+      ) as string[];
+      setAllCategories(uniqueCats);
+
+      console.log(`Loaded ${productList.length} products ${data.cached ? "(from cache)" : ""}`);
     } catch (err) {
       console.error("Fetch error:", err);
       setProducts([]);
@@ -150,17 +157,14 @@ export default function ProductList({
     }
   }, [selectedCategories, debouncedSearch]);
 
-  // Reset to page 1 when filters or search change
+  // Reset page on filter/search change
   useEffect(() => {
-    console.log('Filters changed, resetting to page 1');
     setCurrentPage(1);
   }, [selectedCategories, debouncedSearch]);
 
-  // Fetch products when page changes
+  // Fetch on page or dependencies change
   useEffect(() => {
-    console.log('Fetching page:', currentPage);
-    const isPaginating = currentPage > 1;
-    fetchProducts(currentPage, isPaginating);
+    fetchProducts(currentPage, currentPage > 1);
   }, [currentPage, fetchProducts]);
 
   const toggleLike = async (productId: number, currentLikes: number) => {
@@ -179,11 +183,9 @@ export default function ProductList({
       );
 
       const newSet = new Set(likedProducts);
-      if (isLiked) {
-        newSet.delete(productId);
-      } else {
-        newSet.add(productId);
-      }
+      if (isLiked) newSet.delete(productId);
+      else newSet.add(productId);
+
       setLikedProducts(newSet);
       localStorage.setItem("likedProducts", JSON.stringify([...newSet]));
     } catch (e) {
@@ -191,75 +193,58 @@ export default function ProductList({
     }
   };
 
-  const clearSearch = () => {
-    setSearchTerm("");
-  };
-
+  const clearSearch = () => setSearchTerm("");
   const clearAllFilters = () => {
     setSearchTerm("");
     setSelectedCategories([]);
   };
 
-  // Handle page change from pagination
-  const handlePageChange = (newPage: number) => {
-    console.log('Page change requested:', newPage);
-    setCurrentPage(newPage);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Initial loading state
   if (isLoading && products.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400 font-medium">
-            Loading products...
-          </p>
+          <p className="text-gray-600 font-medium">Loading products...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      {/* Top Search Bar */}
-      <div className="mb-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search products by name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-12 py-4 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-lg"
-            />
-            {searchTerm && (
-              <button
-                onClick={clearSearch}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
-            {isSearching && (
-              <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
-                <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-              </div>
-            )}
-          </div>
-          {debouncedSearch && (
-            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 text-center">
-              Searching for:{" "}
-              <span className="font-semibold text-orange-500">
-                "{debouncedSearch}"
-              </span>
-            </p>
+    <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-50 min-h-screen">
+      {/* Search Bar */}
+      <div className="mb-10">
+        <div className="max-w-3xl mx-auto relative">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 w-6 h-6" />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-14 pr-12 py-5 bg-white border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-300 focus:border-orange-500 transition-all shadow-lg text-lg"
+          />
+          {searchTerm && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          )}
+          {isSearching && (
+            <div className="absolute right-14 top-1/2 -translate-y-1/2">
+              <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
           )}
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-10">
         {!hideFilters && (
           <ProductSelect
             categories={allCategories}
@@ -269,97 +254,74 @@ export default function ProductList({
         )}
 
         <div className="flex-1">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
               {category
-                ? `${category.charAt(0).toUpperCase() + category.slice(1)}`
+                ? `${category.charAt(0).toUpperCase() + category.slice(1)} Collection`
                 : "All Products"}
-              {products.length > 0 && (
-                <span className="ml-3 text-lg font-normal text-gray-500 dark:text-gray-400">
-                  ({products.length} {products.length === 1 ? "item" : "items"})
-                </span>
-              )}
+              <span className="ml-4 text-xl font-normal text-gray-500">
+                ({products.length} {products.length === 1 ? "item" : "items"})
+              </span>
             </h1>
           </div>
 
           {/* Pagination Loading Overlay */}
           {isPaginationLoading && (
-            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 flex flex-col items-center space-y-4">
-                <div className="relative">
-                  <div className="w-20 h-20 border-4 border-orange-200 dark:border-orange-900 rounded-full"></div>
-                  <div className="absolute top-0 left-0 w-20 h-20 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 font-semibold text-lg">
-                  Loading products...
-                </p>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  Page {currentPage} of {totalPages}
-                </p>
+            <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="bg-white rounded-2xl p-8 shadow-2xl text-center">
+                <div className="w-20 h-20 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-lg font-semibold">Loading page {currentPage}...</p>
               </div>
             </div>
           )}
 
-          {products.length === 0 && !isLoading ? (
-            <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-3xl shadow-lg border-2 border-gray-100 dark:border-gray-700">
-              <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="w-12 h-12 text-gray-400" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                No products found
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6">
+          {products.length === 0 ? (
+            <div className="text-center py-24 bg-white rounded-3xl shadow-lg">
+              <Search className="w-20 h-20 text-gray-300 mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">No products found</h3>
+              <p className="text-gray-600 mb-8 max-w-md mx-auto">
                 {debouncedSearch
                   ? `No results for "${debouncedSearch}"`
-                  : selectedCategories.length > 0
-                  ? "No products in selected categories"
-                  : "No products available"}
+                  : "Try adjusting your filters or search term"}
               </p>
               {(debouncedSearch || selectedCategories.length > 0) && (
                 <button
                   onClick={clearAllFilters}
-                  className="px-6 py-3 bg-orange-500 text-white font-semibold rounded-xl hover:bg-orange-600 transition-colors"
+                  className="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition"
                 >
-                  Clear All Filters
+                  Clear Filters
                 </button>
               )}
             </div>
           ) : (
             <>
-              <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 transition-opacity duration-300 ${isPaginationLoading ? 'opacity-50' : 'opacity-100'}`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {products.map((product) => {
-                  const discount =
-                    product.oldPrice && product.oldPrice > product.price
-                      ? Math.round(
-                          ((product.oldPrice - product.price) /
-                            product.oldPrice) *
-                            100
-                        )
-                      : null;
+                  const discount = product.oldPrice && product.oldPrice > product.price
+                    ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
+                    : null;
 
                   return (
                     <div
                       key={product.id}
-                      className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-600"
+                      className="group bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100"
                     >
                       <Link href={`/Cloths/${product.id}`}>
-                        <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700">
+                        <div className="relative aspect-square overflow-hidden bg-gray-50">
                           {product.imageUrl ? (
                             <img
                               src={product.imageUrl}
                               alt={product.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <span className="text-gray-400 dark:text-gray-500 text-sm font-medium">
-                                No Image
-                              </span>
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              No Image
                             </div>
                           )}
 
                           {discount && (
-                            <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                            <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1.5 rounded-full text-sm font-bold">
                               -{discount}%
                             </div>
                           )}
@@ -369,39 +331,39 @@ export default function ProductList({
                               e.preventDefault();
                               toggleLike(product.id, product.likes);
                             }}
-                            className="absolute top-3 right-3 w-11 h-11 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all z-10"
+                            className="absolute top-4 right-4 w-12 h-12 bg-white/90 backdrop-blur rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition"
                           >
                             <Heart
-                              className={`w-5 h-5 transition-all ${
+                              className={`w-6 h-6 ${
                                 likedProducts.has(product.id)
                                   ? "fill-red-500 text-red-500"
-                                  : "text-gray-600 dark:text-gray-300"
+                                  : "text-gray-700"
                               }`}
                             />
                           </button>
                         </div>
                       </Link>
 
-                      <div className="p-5 space-y-3">
+                      <div className="p-6 space-y-4">
                         <Link href={`/Cloths/${product.id}`}>
-                          <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 hover:text-orange-500 dark:hover:text-orange-400 transition-colors min-h-[3rem]">
+                          <h3 className="font-bold text-lg text-gray-900 line-clamp-2 hover:text-orange-600 transition">
                             {product.name}
                           </h3>
                         </Link>
 
                         <div className="flex items-center gap-3">
                           {product.oldPrice && (
-                            <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
+                            <span className="text-gray-500 line-through">
                               {formatPrice(product.oldPrice)}
                             </span>
                           )}
-                          <span className="text-xl font-bold text-gray-900 dark:text-white">
+                          <span className="text-2xl font-bold text-gray-900">
                             {formatPrice(product.price)}
                           </span>
                         </div>
 
                         <Link href={`/Cloths/${product.id}`} className="block">
-                          <button className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl transform hover:scale-[1.02] transition-all duration-200 shadow-md hover:shadow-lg">
+                          <button className="w-full py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl transition-all hover:shadow-xl">
                             View Details
                           </button>
                         </Link>
@@ -412,11 +374,13 @@ export default function ProductList({
               </div>
 
               {totalPages > 1 && (
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
+                <div className="mt-12">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
               )}
             </>
           )}

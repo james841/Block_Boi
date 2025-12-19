@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart, RefreshCw } from "lucide-react";
 import ProductFilter from "./ProductFilter";
 import Link from "next/link";
 import { useCurrency } from '@/app/contexts/CurrencyContext';
@@ -17,11 +17,21 @@ type Product = {
   featuredOnHomepage?: boolean;
 };
 
+type CachedData = {
+  products: Product[];
+  timestamp: number;
+};
+
+// Cache duration: 5 minutes (adjust as needed)
+const CACHE_DURATION = 5 * 60 * 1000;
+const CACHE_KEY = "featured_products_cache";
+
 export default function PopularProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [activeFilter, setActiveFilter] = useState("all");
   const [likedProducts, setLikedProducts] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [cacheStatus, setCacheStatus] = useState<"loading" | "cached" | "fresh">("loading");
   const { formatPrice } = useCurrency();
 
   useEffect(() => {
@@ -29,23 +39,115 @@ export default function PopularProducts() {
     loadLikedProducts();
   }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (forceRefresh = false) => {
     try {
+      // Try to get from cache first
+      if (!forceRefresh) {
+        const cachedData = getCachedProducts();
+        if (cachedData) {
+          console.log("✅ Loading products from cache");
+          setProducts(cachedData);
+          setCacheStatus("cached");
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // If no cache or force refresh, fetch from API
+      console.log("🌐 Fetching fresh products from API");
+      setCacheStatus("loading");
+      
       const response = await fetch("/api/Products/Featured");
       if (!response.ok) throw new Error("Failed to fetch products");
+      
       const data = await response.json();
       if (data.success && Array.isArray(data.products)) {
         const normalizedProducts = data.products.map((p: Product) => ({
           ...p,
           oldPrice: p.oldPrice === 0 ? null : p.oldPrice,
         }));
+        
+        // Save to cache
+        saveProductsToCache(normalizedProducts);
         setProducts(normalizedProducts);
+        setCacheStatus("fresh");
       }
+      
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching products:", error);
+      
+      // If fetch fails, try to use stale cache as fallback
+      const staleCache = getStaleCache();
+      if (staleCache) {
+        console.log("⚠️ Using stale cache as fallback");
+        setProducts(staleCache);
+        setCacheStatus("cached");
+      }
+      
       setIsLoading(false);
     }
+  };
+
+  // Get cached products if still valid
+  const getCachedProducts = (): Product[] | null => {
+    if (typeof window === "undefined") return null;
+
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (!cached) return null;
+
+      const { products, timestamp }: CachedData = JSON.parse(cached);
+      const now = Date.now();
+
+      // Check if cache is still valid
+      if (now - timestamp < CACHE_DURATION) {
+        return products;
+      }
+
+      // Cache expired
+      return null;
+    } catch (error) {
+      console.error("Error reading cache:", error);
+      return null;
+    }
+  };
+
+  // Get stale cache (expired but still usable as fallback)
+  const getStaleCache = (): Product[] | null => {
+    if (typeof window === "undefined") return null;
+
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (!cached) return null;
+
+      const { products }: CachedData = JSON.parse(cached);
+      return products;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  // Save products to cache
+  const saveProductsToCache = (products: Product[]) => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const cacheData: CachedData = {
+        products,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+      console.log("💾 Products saved to cache");
+    } catch (error) {
+      console.error("Error saving to cache:", error);
+    }
+  };
+
+  // Manual refresh function
+  const handleRefresh = () => {
+    setIsLoading(true);
+    fetchProducts(true);
   };
 
   const loadLikedProducts = () => {
@@ -77,8 +179,9 @@ export default function PopularProducts() {
     return (
       <section className="bg-gray-50 min-h-screen py-16">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-center h-96">
+          <div className="flex flex-col items-center justify-center h-96 gap-4">
             <div className="w-16 h-16 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+            <p className="text-gray-600 font-medium">Loading products...</p>
           </div>
         </div>
       </section>
@@ -88,14 +191,40 @@ export default function PopularProducts() {
   return (
     <section className="bg-gray-50 py-12 md:py-20 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Header */}
+        {/* Header with Cache Status */}
         <div className="text-center mb-10 md:mb-14">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Popular Products
-          </h2>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
+              Popular Products
+            </h2>
+            
+            {/* Cache Status Indicator */}
+            {cacheStatus === "cached" && (
+              <div className="group relative">
+                <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span>Cached</span>
+                </div>
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  Loaded from local cache
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4 mb-4">
             Discover our most loved items, handpicked for style and quality.
           </p>
+
+          {/* Refresh Button */}
+          <button
+            onClick={handleRefresh}
+            disabled={isLoading}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full text-sm font-medium transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh Products
+          </button>
         </div>
 
         {/* Filter */}
@@ -117,6 +246,7 @@ export default function PopularProducts() {
                     <img
                       src={product.imageUrl}
                       alt={product.name}
+                      loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                   ) : (
@@ -173,7 +303,6 @@ export default function PopularProducts() {
 
                     {/* Add to Cart - Responsive */}
                     <div className="flex sm:hidden w-full">
-                      {/* Mobile: Full-width button with text */}
                       <button className="w-full px-6 py-4 bg-black hover:bg-gray-800 text-white rounded-full font-semibold flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95 shadow-lg">
                         <ShoppingCart className="w-5 h-5" />
                         <span>Add to Cart</span>
@@ -181,7 +310,6 @@ export default function PopularProducts() {
                     </div>
 
                     <div className="hidden sm:flex">
-                      {/* Desktop: Icon-only circle button */}
                       <button className="p-4 bg-gray-100 rounded-full group-hover:bg-black transition-all duration-300 hover:scale-110">
                         <ShoppingCart className="w-6 h-6 text-gray-700 group-hover:text-white transition-colors" />
                       </button>
