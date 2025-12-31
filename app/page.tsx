@@ -8,8 +8,8 @@ import GetStartedSection from "./components/GetStartedSection";
 
 
 export const metadata: Metadata = {
-  title: "Home | Bloq Boy",
-  description: "Learn more about Bloq Boy and our mission.",
+  title: "Home | Block Boi",
+  description: "Official website for Block Boi, your destination for modern shopping.",
 };
 
 

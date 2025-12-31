@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Shop All Clothes | Your Store Name",
+  title: "Shop All Clothes | Block boi",
   description:
     "Explore our complete collection of premium clothing for men and women. From timeless essentials to bold statement pieces — find your perfect style today.",
 };

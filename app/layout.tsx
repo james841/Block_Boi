@@ -26,12 +26,12 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "Bloq Boy | Next App",
-    template: "%s | Bloq Boy",
+    default: "Block Boi | Next App",
+    template: "%s | Block Boi",
   },
-  description: "Modern Next.js application built with Prisma and PostgreSQL.",
-  keywords: ["Next.js", "Prisma", "PostgreSQL", "TypeScript", "Bloq Boy"],
-  authors: [{ name: "Bloq Boy Dev Team" }],
+  description: "Modern Shopping Website for Block Boi.",
+  keywords: ["Shopping", "Clothing", "Block Boi", "Fashion", "Boutique"],
+  authors: [{ name: "Block Boi Dev Team" }],
   icons: {
     icon: [
       { url: "/logo.png", type: "image/png" },

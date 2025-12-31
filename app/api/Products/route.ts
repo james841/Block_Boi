@@ -297,7 +297,7 @@ export async function PUT(request: Request) {
   }
 }
 
-// === PATCH: Update likes (Public) ===
+
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
