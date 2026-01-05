@@ -9,8 +9,9 @@ const filters = [
   { id: "all", label: "ALL", emoji: "✨" },
   { id: "shorts", label: "SHORTS", emoji: "🩳" },
   { id: "jackets", label: "JACKETS", emoji: "🧥" },
-  { id: "shoes", label: "SHOES", emoji: "👟" },
-  { id: "t-shirt", label: "T-SHIRT", emoji: "👕" },
+  { id: "pants", label: "PANTS", emoji: "👖" },
+  { id: "shirts", label: "SHIRT", emoji: "👕" },
+  { id: "caps", label: "CAPS", emoji: "🧢" },
 ];
 
 export default function ProductFilter({ activeFilter, onFilterChange }: FilterProps) {
