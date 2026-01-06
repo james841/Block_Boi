@@ -92,7 +92,7 @@ export default function CartDrawer() {
                           <span>Color:</span>
                           <div
                             className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600"
-                            style={{ backgroundColor: item.selectedColor.toLowerCase() }}
+                            style={{ backgroundColor: item.selectedColor?.toLowerCase() }}
                           />
                         </div>
                       </div>

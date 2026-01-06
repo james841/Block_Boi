@@ -40,7 +40,7 @@ export default function Footer() {
             <h2 className="text-2xl font-bold">Block Boi</h2>
           </div>
           <p className="text-gray-400 text-sm max-w-xs">
-            Building the future of decentralized creativity. Join the movement.
+            Stylish fashion for the modern individual.
           </p>
         </div>
 
@@ -50,11 +50,11 @@ export default function Footer() {
           <div className="space-y-4 text-sm">
             <div className="flex items-center gap-3 text-gray-300 hover:text-cyan-300 transition">
               <MapPin className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-              <span>123 Anywhere Street, Lagos, Nigeria</span>
+              <span> address: ologunjobi estate, off tosfol events asa dam road Kwara state Nigeria </span>
             </div>
             <div className="flex items-center gap-3 text-gray-300 hover:text-cyan-300 transition">
               <Phone className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-              <span>+1 (543) 123-4567</span>
+              <span> +234 902 108 0632</span>
             </div>
             <div className="flex items-center gap-3">
               <Mail className="w-5 h-5 text-cyan-400 flex-shrink-0" />
