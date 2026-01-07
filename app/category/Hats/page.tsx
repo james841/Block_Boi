@@ -5,18 +5,18 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "T-Shirts Collection | Your Store",
-  description: "Explore our exclusive collection of stylish shirts.",
+  title: "Hats Collection | Your Store",
+  description: "Explore our exclusive collection of stylish hats.",
 };
 
-export default function ShirtsPage() {
+export default function HatsPage() {
   return (
     <div className="mt-16">
       <Suspense fallback={<CategorySkeleton />}>
         <CategoryPageClient
-          category="shirts"
-          title="Shirts Collection"
-          description="Explore our exclusive collection of stylish shirts."
+          category="hats"
+          title="Hats Collection"
+          description="Explore our exclusive collection of stylish hats."
         />
       </Suspense>
     </div>
