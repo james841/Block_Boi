@@ -19,12 +19,12 @@ export default function CategoryShowcase() {
 
   const getCategoryRoute = (slug: string) => {
     const routeMap: Record<string, string> = {
-      pants: "category/pants",
-      "shirt": "category/shirts",
-      shirts: "category/shirts",
+      pants: "category/Pants",
+      "shirt": "category/shirt",
+      shirts: "category/shirt",
       shorts: "category/shorts",
-      'hats': 'category/hats',     
-      'jackets': 'category/jackets',  
+      'hats': 'category/Hats',     
+      'jackets': 'category/Jackets',  
     };
     return routeMap[slug.toLowerCase()] || `/category/${slug}`;
   };
