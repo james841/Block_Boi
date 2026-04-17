@@ -10,7 +10,28 @@ import {
   XCircle, ShoppingBag, Calendar, Copy, Check 
 } from 'lucide-react';
 
-// ... Order type stays the same ...
+interface OrderItem {
+  id: string;
+  productId: number;
+  productName: string;
+  productImage?: string | null;
+  quantity: number;
+  price: number;
+  selectedColor: string;
+  selectedSize: string;
+}
+
+interface Order {
+  id: string;
+  status: string;
+  paymentStatus: string;
+  paymentReference: string;
+  createdAt: string;
+  items: OrderItem[];
+  total: number;
+  displayTotal?: number;
+  displayCurrency?: string;
+}
 
 export default function MyOrders() {
   const { data: session, status } = useSession();
@@ -197,7 +218,7 @@ export default function MyOrders() {
 
                   {/* Item List */}
                   <div className="p-8 space-y-6">
-                    {order.items.map((item, idx) => (
+                    {order.items.map((item: OrderItem, idx: number) => (
                       <div key={idx} className="flex flex-col sm:flex-row gap-6 items-center">
                         <div className="relative w-28 h-28 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 flex-shrink-0">
                           {item.productImage ? (
