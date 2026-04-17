@@ -8,12 +8,11 @@ import {
   Facebook,
   Twitter,
   Instagram,
-  Layers,
+  ArrowUpRight
 } from "lucide-react";
-
 import Image from "next/image";
 
-// TikTok SVG icon (works even if lucide doesn't have it yet)
+// TikTok SVG icon - Updated to match monochrome style
 const TikTokIcon = ({ className }: { className?: string }) => (
   <svg
     viewBox="0 0 24 24"
@@ -27,147 +26,104 @@ const TikTokIcon = ({ className }: { className?: string }) => (
 
 export default function Footer() {
   return (
-    <footer className="bg-black text-white py-16 px-6 md:px-20 relative overflow-hidden">
-      {/* Background overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1523]/80 to-[#1c2230]/80 opacity-50" />
+    <footer className="bg-black text-white py-24 px-6 md:px-16 lg:px-24 border-t border-white/5 relative overflow-hidden">
+      
+      {/* Structural Logo Watermark */}
+      <div className="absolute -bottom-10 -right-10 text-[20vw] font-black text-white/[0.02] leading-none select-none pointer-events-none">
+        BLOCK
+      </div>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 relative z-10">
+      <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 relative z-10">
         
-        {/* Brand */}
-        <div className="space-y-1 ">
-          <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Block Boi Logo" width={100} height={100} className="text-cyan-400 animate-pulse-slow" />
-            <h2 className="text-2xl font-bold">Block Boi</h2>
+        {/* 1. Brand Section */}
+        <div className="space-y-8">
+          <div className="flex flex-col gap-6">
+            <Image 
+              src="/logoss.png" 
+              alt="Block Boi Logo" 
+              width={120} 
+              height={120} 
+              className="brightness-0 invert w-24 h-auto" 
+            />
+            <h2 className="text-3xl font-black uppercase tracking-tighter italic">Block Boi</h2>
           </div>
-          <p className="text-gray-400 text-sm max-w-xs">
-            Stylish fashion for the modern individual.
+          <p className="text-white/40 text-[11px] font-bold uppercase tracking-[0.2em] leading-loose max-w-xs">
+            Curating essentials for the modern individual through architectural design and premium construction.
           </p>
         </div>
 
-        {/* Contact */}
-        <div className="space-y-5">
-          <h3 className="text-lg font-semibold text-cyan-400">Contact Us</h3>
-          <div className="space-y-4 text-sm">
-            <div className="flex items-center gap-3 text-gray-300 hover:text-cyan-300 transition">
-              <MapPin className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-              <span> address: ologunjobi estate, off tosfol events asa dam road Kwara state Nigeria </span>
+        {/* 2. Contact Section */}
+        <div className="space-y-8">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Connect</h3>
+          <div className="space-y-6 text-[11px] font-bold uppercase tracking-widest">
+            <div className="flex items-start gap-4 text-white/60 hover:text-white transition-colors group">
+              <MapPin className="w-4 h-4 text-white shrink-0" strokeWidth={1.5} />
+              <span className="leading-relaxed">Ologunjobi Estate, Off Tosfol Road, Kwara, NG</span>
             </div>
-            <div className="flex items-center gap-3 text-gray-300 hover:text-cyan-300 transition">
-              <Phone className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-              <span> +234 902 108 0632</span>
+            <div className="flex items-center gap-4 text-white/60 hover:text-white transition-colors">
+              <Phone className="w-4 h-4 text-white shrink-0" strokeWidth={1.5} />
+              <span>+234 902 108 0632</span>
             </div>
-            <div className="flex items-center gap-3">
-              <Mail className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-              <a
-                href="mailto:thblockboi@gmail.com"
-                className="text-gray-300 hover:text-cyan-300 hover:underline transition"
-              >
+            <div className="flex items-center gap-4 text-white/60 hover:text-white transition-colors">
+              <Mail className="w-4 h-4 text-white shrink-0" strokeWidth={1.5} />
+              <a href="mailto:thblockboi@gmail.com" className="hover:underline underline-offset-4 decoration-1">
                 thblockboi@gmail.com
               </a>
             </div>
           </div>
         </div>
 
-        {/* Links */}
-        <div className="grid grid-cols-2 gap-x-10 gap-y-4">
-          <div className="space-y-3">
-            <Link href="/about" className="block text-gray-300 hover:text-cyan-400 text-sm transition">
-              About Us
-            </Link>
-            <Link href="/jobs" className="block text-gray-300 hover:text-cyan-400 text-sm transition">
-              Careers
-            </Link>
-            <Link href="/press" className="block text-gray-300 hover:text-cyan-400 text-sm transition">
-              Press
-            </Link>
-            <Link href="/blog" className="block text-gray-300 hover:text-cyan-400 text-sm transition">
-              Blog
-            </Link>
-          </div>
-          <div className="space-y-3">
-            <Link href="/contact" className="block text-gray-300 hover:text-cyan-400 text-sm transition">
-              Contact
-            </Link>
-            <Link href="/terms" className="block text-gray-300 hover:text-cyan-400 text-sm transition">
-              Terms
-            </Link>
-            <Link href="/privacy" className="block text-gray-300 hover:text-cyan-400 text-sm transition">
-              Privacy
-            </Link>
+        {/* 3. Navigation Links */}
+        <div className="space-y-8">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Information</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {["About Us", "Careers", "Blog", "Terms", "Privacy"].map((link) => (
+              <Link 
+                key={link} 
+                href={`/${link.toLowerCase().replace(" ", "")}`} 
+                className="text-[11px] font-black uppercase tracking-widest text-white/50 hover:text-white flex items-center gap-2 transition-all group"
+              >
+                <span>{link}</span>
+                <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+              </Link>
+            ))}
           </div>
         </div>
 
-        {/* Social Media – NOW 100% WORKING */}
-        <div className="flex items-start justify-start md:justify-end">
-          <div className="flex gap-4">
-            {/* TikTok */}
-            <a
-              href="https://www.tiktok.com/@blocboi_"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="TikTok"
-              className="group p-3 rounded-full border border-gray-700 bg-black/40 backdrop-blur-sm hover:border-cyan-400 hover:bg-cyan-400/10 transition-all duration-300 hover:scale-110"
-            >
-              <TikTokIcon className="w-6 h-6 text-gray-400 group-hover:text-cyan-400 transition" />
-            </a>
-
-            {/* Twitter */}
-            <a
-              href="https://x.com/thblockboii?s=21"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Twitter"
-              className="group p-3 rounded-full border border-gray-700 bg-black/40 backdrop-blur-sm hover:border-cyan-400 hover:bg-cyan-400/10 transition-all duration-300 hover:scale-110"
-            >
-              <Twitter className="w-6 h-6 text-gray-400 group-hover:text-cyan-400 transition" />
-            </a>
-
-            {/* Instagram */}
-            <a
-              href="https://www.instagram.com/__block.boi?igsh=bDJ1cHJyamk3c3hx&utm_source=qr_code"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
-              className="group p-3 rounded-full border border-gray-700 bg-black/40 backdrop-blur-sm hover:border-cyan-400 hover:bg-cyan-400/10 transition-all duration-300 hover:scale-110"
-            >
-              <Instagram className="w-6 h-6 text-gray-400 group-hover:text-cyan-400 transition" />
-            </a>
-
-            {/* Facebook */}
-            <a
-              href="https://facebook.com/blockboi"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-              className="group p-3 rounded-full border border-gray-700 bg-black/40 backdrop-blur-sm hover:border-cyan-400 hover:bg-cyan-400/10 transition-all duration-300 hover:scale-110"
-            >
-              <Facebook className="w-6 h-6 text-gray-400 group-hover:text-cyan-400 transition" />
-            </a>
+        {/* 4. Social Grid */}
+        <div className="space-y-8">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Socials</h3>
+          <div className="grid grid-cols-2 gap-px bg-white/10 border border-white/10">
+            {[
+              { icon: TikTokIcon, href: "https://www.tiktok.com/@blocboi_", label: "TikTok" },
+              { icon: Twitter, href: "https://x.com/thblockboii", label: "Twitter" },
+              { icon: Instagram, href: "https://www.instagram.com/__block.boi", label: "Instagram" },
+              { icon: Facebook, href: "https://facebook.com/blockboi", label: "Facebook" },
+            ].map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black flex items-center justify-center p-6 hover:bg-white hover:text-black transition-all duration-300 group"
+              >
+                <social.icon className="w-5 h-5 transition-transform group-hover:scale-110" strokeWidth={1.5} />
+              </a>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Bottom */}
-      <div className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
-        © {new Date().getFullYear()} Block Boi. All rights reserved.
+      {/* Footer Bottom */}
+      <div className="mt-24 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20">
+          © {new Date().getFullYear()} Block Boi Collective.
+        </p>
+        <div className="flex gap-8">
+           <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20">Designed in Nigeria</span>
+           <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20">All Rights Reserved</span>
+        </div>
       </div>
     </footer>
   );
-}
-
-// Pulse animation
-const styles = `
-  @keyframes pulse-slow {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
-  }
-  .animate-pulse-slow {
-    animation: pulse-slow 4s infinite ease-in-out;
-  }
-`;
-
-if (typeof document !== "undefined") {
-  const styleSheet = document.createElement("style");
-  styleSheet.textContent = styles;
-  document.head.appendChild(styleSheet);
 }

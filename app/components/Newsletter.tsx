@@ -1,69 +1,87 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowRight } from "lucide-react";
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Connect to your actual newsletter API
-    alert("Thank you for subscribing! You'll get 10% off soon.");
+    alert("Welcome to the inner circle. Code: BLOCK10");
     setEmail("");
   };
 
   return (
-    <section className="py-16 px-6 sm:px-8 lg:px-12 bg-gradient-to-br from-amber-50/80 via-stone-50 to-neutral-100">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-stone-200/50">
-          <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
-            {/* Text & Form Section - Appears first on mobile */}
-            <div className="p-8 lg:p-12 text-center lg:text-left order-2 lg:order-1 space-y-8">
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight">
-                <span className="bg-gradient-to-r from-amber-700 via-stone-700 to-neutral-800 bg-clip-text text-transparent">
-                  Stay Stylish
-                </span>
+    <section className="py-24 px-6 sm:px-10 md:px-16 lg:px-24 bg-white border-t border-black/5">
+      <div className="max-w-[1400px] mx-auto">
+        {/* THE MAIN CONTAINER - FORCED BLACK */}
+        <div className="bg-black overflow-hidden relative border border-black flex flex-col lg:flex-row">
+          
+          {/* 1. TEXT & FORM SECTION - NOW SOLID BLACK */}
+          <div className="w-full lg:w-1/2 p-10 md:p-16 lg:p-20 flex flex-col justify-center space-y-12 bg-black text-white relative z-10">
+            
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <span className="h-[1px] w-12 bg-white" />
+                <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40">The Collective</span>
+              </div>
+              
+              <h2 className="text-6xl md:text-7xl xl:text-8xl font-black uppercase tracking-tighter leading-[0.85]">
+                Members <br /> 
+                <span className="text-transparent" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.3)" }}>Only.</span>
               </h2>
-              <p className="text-lg sm:text-xl text-gray-700 leading-relaxed max-w-lg mx-auto lg:mx-0">
-                Join thousands of trendsetters. Get exclusive drops, style tips, and{" "}
-                <span className="font-bold text-amber-700">10% off your first order</span>{" "}
-                — delivered straight to your inbox.
+              
+              <p className="text-sm font-medium text-white/50 max-w-sm leading-relaxed">
+                Join our inner circle for priority access to drops and 
+                <span className="text-white font-black italic ml-1 underline underline-offset-8"> 10% OFF </span> 
+                your first architectural piece.
               </p>
+            </div>
 
-              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto lg:mx-0">
+            <form onSubmit={handleSubscribe} className="space-y-6">
+              <div className="relative group">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  className="flex-1 px-6 py-4 text-gray-800 bg-stone-100 border border-stone-300 rounded-full focus:outline-none focus:ring-4 focus:ring-amber-200 transition-all"
+                  placeholder="YOUR@EMAIL.COM"
+                  className="w-full px-0 py-6 bg-transparent border-b border-white/20 text-white font-black uppercase tracking-[0.2em] placeholder:text-white/10 focus:outline-none focus:border-white transition-all duration-500"
                   required
                 />
                 <button
                   type="submit"
-                  className="px-8 py-4 bg-gradient-to-r from-amber-600 via-stone-600 to-neutral-700 text-white font-bold rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                  className="absolute right-0 bottom-6 flex items-center gap-2 group-hover:translate-x-2 transition-transform duration-300"
                 >
-                  Subscribe Now
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white hidden sm:block">Join Now</span>
+                  <ArrowRight className="w-6 h-6 text-white" />
                 </button>
-              </form>
-
-              <p className="text-sm text-gray-500 mt-4">
-                No spam, ever. Unsubscribe anytime.
-              </p>
-            </div>
-
-            {/* Image Section - Appears below text on mobile */}
-            <div className="order-1 lg:order-2">
-              <div className="relative h-80 lg:h-full overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <img
-                  src="/Images/couples.webp"
-                  alt="Stylish couple showcasing modern fashion"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
               </div>
+              
+              <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
+                <span>No Spam</span>
+                <span className="w-1.5 h-1.5 bg-white/20 rounded-full" />
+                <span>Exclusive Access</span>
+              </div>
+            </form>
+          </div>
+
+          {/* 2. IMAGE SECTION - FULL COLOR */}
+          <div className="w-full lg:w-1/2 h-[450px] lg:h-auto overflow-hidden relative">
+            <img
+              src="/Images/couples.webp"
+              alt="Latest Collection"
+              className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
+            />
+            {/* Dark overlay to help the image sit better against the black form */}
+            <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+            
+            {/* Branding Badge */}
+            <div className="absolute bottom-0 right-0 bg-white text-black px-8 py-5 hidden lg:block">
+              <p className="text-[11px] font-black tracking-[0.4em] uppercase">Est. 2026</p>
             </div>
           </div>
+
         </div>
       </div>
     </section>

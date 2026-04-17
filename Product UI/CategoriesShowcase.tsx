@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, ArrowRight } from "lucide-react";
 
 type Category = {
   id: number;
@@ -20,11 +20,11 @@ export default function CategoryShowcase() {
   const getCategoryRoute = (slug: string) => {
     const routeMap: Record<string, string> = {
       pants: "category/Pants",
-      "shirt": "category/shirt",
+      shirt: "category/shirt",
       shirts: "category/shirt",
       shorts: "category/shorts",
-      'hats': 'category/Hats',     
-      'jackets': 'category/Jackets',  
+      hats: "category/Hats",
+      jackets: "category/Jackets",
     };
     return routeMap[slug.toLowerCase()] || `/category/${slug}`;
   };
@@ -57,166 +57,115 @@ export default function CategoryShowcase() {
 
   if (loading) {
     return (
-      <div className="w-full px-6 py-16 text-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="inline-flex items-center gap-3">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-600 text-lg font-medium">
-            Loading categories...
+      <div className="w-full px-6 py-24 text-center bg-white">
+        <div className="inline-flex flex-col items-center gap-4">
+          <div className="w-12 h-1 bg-black animate-pulse"></div>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black">
+            Syncing Collections...
           </p>
         </div>
-      </div>
-    );
-  }
-
-  if (categories.length === 0) {
-    return (
-      <div className="w-full px-6 py-16 text-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <p className="text-gray-500 text-lg">No categories available yet.</p>
       </div>
     );
   }
 
   return (
-    <section className="relative w-full py-16 bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-100 rounded-full blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-100 rounded-full blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
-
-      <div className="relative max-w-[1400px] mx-auto px-6">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
-            <Sparkles size={16} />
-            <span>Explore Collections</span>
-          </div>
-          <h2 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 mb-4">
-            Shop by Category
-          </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Discover our curated collections and find exactly what you're
-            looking for
-          </p>
-        </div>
-
+    <section className="relative w-full py-24 bg-white overflow-hidden">
+      <div className="relative max-w-[1400px] mx-auto px-6 md:px-10">
         
-        <div className="relative group">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <span className="h-[1px] w-8 bg-black" />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/40">
+                Foundations
+              </span>
+            </div>
+            <h2 className="text-6xl md:text-7xl font-black text-black uppercase tracking-tighter leading-none">
+              Shop By <br /> <span className="text-black/20 italic">Category.</span>
+            </h2>
+          </div>
           
-          <button
-            onClick={() => scroll("left")}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 p-4 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <button
-            onClick={() => scroll("right")}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 p-4 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0"
-            aria-label="Scroll right"
-          >
-            <ChevronRight size={24} />
-          </button>
-
-          
-          <div
-            ref={scrollContainerRef}
-            className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
-            style={{
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-            }}
-          >
-            {categories.map((cat, index) => (
-              <Link
-                key={cat.id}
-                href={getCategoryRoute(cat.slug)}
-                className="group/card relative flex-shrink-0 w-80 h-[480px] rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-105"
-                style={{
-                  animation: `slideIn 0.6s ease-out ${index * 0.1}s both`,
-                }}
-              >
-                
-                <div className="absolute inset-0">
-                  <Image
-                    src={cat.imageUrl}
-                    alt={cat.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover/card:scale-110"
-                    sizes="320px"
-                  />
-                </div>
-
-                
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-70 group-hover/card:opacity-80 transition-opacity duration-500"></div>
-
-                
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transform scale-x-0 group-hover/card:scale-x-100 transition-transform duration-500 origin-left"></div>
-
-                
-                <div className="absolute inset-0 flex flex-col justify-end p-8">
-                  <div className="transform translate-y-4 group-hover/card:translate-y-0 transition-transform duration-500">
-                    <h3 className="text-4xl font-black text-white mb-3 drop-shadow-2xl">
-                      {cat.title}
-                    </h3>
-                    <div className="flex items-center gap-2 text-white/90 font-semibold opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-100">
-                      <span>Explore Collection</span>
-                      <ChevronRight
-                        size={20}
-                        className="transform group-hover/card:translate-x-2 transition-transform duration-300"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                
-                <div className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500">
-                  <div className="absolute top-0 -left-full h-full w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent transform skew-x-12 group-hover/card:animate-shimmer"></div>
-                </div>
-              </Link>
-            ))}
+          {/* Custom Navigation Controls */}
+          <div className="flex gap-4">
+            <button
+              onClick={() => scroll("left")}
+              className="p-4 border border-black hover:bg-black hover:text-white transition-all duration-300 group"
+              aria-label="Previous"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={() => scroll("right")}
+              className="p-4 border border-black hover:bg-black hover:text-white transition-all duration-300 group"
+              aria-label="Next"
+            >
+              <ChevronRight size={20} />
+            </button>
           </div>
         </div>
 
-        
-        <div className="flex justify-center gap-2 mt-8">
-          {categories.length > 4 && (
-            <p className="text-gray-500 text-sm">
-              Scroll to see more →
-            </p>
-          )}
+        {/* Scrollable Container */}
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-10"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              href={getCategoryRoute(cat.slug)}
+              className="group relative flex-shrink-0 w-80 md:w-[450px] aspect-[3/4] overflow-hidden border border-black/5"
+            >
+              {/* Image with subtle scale effect */}
+              <div className="absolute inset-0">
+                <Image
+                  src={cat.imageUrl}
+                  alt={cat.title}
+                  fill
+                  className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                  sizes="(max-width: 768px) 320px, 450px"
+                />
+                {/* Visual architectural frame */}
+                <div className="absolute inset-4 border border-white/20 pointer-events-none group-hover:inset-6 transition-all duration-500" />
+              </div>
+
+              {/* Overlay Gradients - Muted */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+              {/* Content Box */}
+              <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
+                <h3 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-4 group-hover:-translate-y-2 transition-transform duration-500">
+                  {cat.title}
+                </h3>
+                
+                <div className="flex items-center gap-3 transform translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">
+                    View Lookbook
+                  </span>
+                  <ArrowRight size={16} className="text-white" />
+                </div>
+              </div>
+
+              {/* Top Right Label */}
+              <div className="absolute top-6 right-6">
+                 <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.2em] [writing-mode:vertical-lr]">
+                   Collection No. 0{cat.id}
+                 </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Bottom Progress Bar Indicator */}
+        <div className="w-full h-[1px] bg-black/5 mt-8 relative">
+           <div className="absolute top-0 left-0 w-1/4 h-full bg-black/20" />
         </div>
       </div>
 
       <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes shimmer {
-          0% {
-            left: -100%;
-          }
-          100% {
-            left: 200%;
-          }
-        }
-
-        .animate-shimmer {
-          animation: shimmer 1.5s ease-in-out;
-        }
-
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
-        }
-
-        .shadow-3xl {
-          box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
         }
       `}</style>
     </section>

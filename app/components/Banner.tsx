@@ -1,91 +1,111 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 export default function Banner() {
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#FFF9F0] relative overflow-hidden">
-      {/* Subtle animated background glow */}
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-gradient-to-br from-amber-400/30 to-teal-400/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-gradient-to-tl from-blue-400/30 to-teal-400/30 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
-      </div>
+    <section className="py-24 px-6 sm:px-10 md:px-16 lg:px-24 bg-white relative overflow-hidden">
+      {/* Structural Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-black/5" />
+      <div className="absolute bottom-0 left-0 w-full h-[1px] bg-black/5" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-center mb-12 tracking-tight">
-          <span className="bg-gradient-to-r from-amber-400 via-teal-400 to-blue-500 bg-clip-text text-transparent">
-            Discover Your Signature Style
-          </span>
-        </h1>
+      <div className="max-w-[1400px] mx-auto relative z-10">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+          <h2 className="text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tighter leading-[0.8] text-black">
+            Discover <br /> 
+            <span className="text-black/20">Signature</span> Style
+          </h2>
+          <p className="max-w-xs text-xs font-bold uppercase tracking-[0.3em] text-black/40 leading-relaxed">
+            Curated collections designed for the modern architectural wardrobe.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-          {/* Men's Collection */}
-          <div className="group bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden hover:shadow-3xl hover:-translate-y-2 transition-all duration-500">
-            <div className="flex flex-col md:flex-row items-center">
-              {/* Image - Stacks on top on mobile */}
-              <div className="w-full md:w-1/2 p-6 md:p-8 order-1 md:order-2">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-teal-400/20 rounded-3xl blur-2xl scale-110 -z-10 group-hover:blur-3xl transition-all duration-500"></div>
-                  <img
-                    src="/Images/block5.png" // Replace with a better image if needed
-                    alt="Confident man in modern tailored outfit"
-                    className="w-full h-80 md:h-96 object-cover rounded-3xl border-4 border-white/80 shadow-2xl"
-                  />
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-black/10 border border-black/10">
+          
+          {/* Collection One: Men */}
+          <div className="group bg-white overflow-hidden relative">
+            <div className="flex flex-col">
+              {/* Image Container */}
+              <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
+                <img
+                  src="/Images/block5.png"
+                  alt="Men's Collection"
+                  className="w-full h-full object-cover grayscale transition-transform duration-700 ease-out group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500" />
               </div>
 
               {/* Text Content */}
-              <div className="w-full md:w-1/2 p-8 md:p-10 order-2 md:order-1 text-center md:text-left space-y-6">
-                <h3 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
-                  Elevate Your Style
-                </h3>
-                <p className="text-gray-700 text-base md:text-lg leading-relaxed">
-                 Discover timeless pieces that blend luxury with everyday confidence. Handpicked for the modern wardrobe.                </p>
-                <Link
-                  href="/Cloths?category=men" // Optional: filter link if you have categories
-                  className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 via-teal-500 to-blue-500 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
-                >
-                  Shop Men
-                  <span className="ml-2">→</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Women's Collection */}
-          <div className="group bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden hover:shadow-3xl hover:-translate-y-2 transition-all duration-500">
-            <div className="flex flex-col md:flex-row items-center">
-              {/* Image */}
-              <div className="w-full md:w-1/2 p-6 md:p-8">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-bl from-blue-400/20 to-teal-400/20 rounded-3xl blur-2xl scale-110 -z-10 group-hover:blur-3xl transition-all duration-500"></div>
-                  <img
-                    src="/Images/block6.png" // Replace with a better image if needed
-                    alt="Elegant woman in contemporary chic outfit"
-                    className="w-full h-80 md:h-96 object-cover rounded-3xl border-4 border-white/80 shadow-2xl"
-                  />
+              <div className="p-10 space-y-6">
+                <div className="flex items-center gap-4">
+                  <span className="h-[1px] w-8 bg-black" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">Essential Men</span>
                 </div>
-              </div>
-
-              {/* Text Content */}
-              <div className="w-full md:w-1/2 p-8 md:p-10 text-center md:text-left space-y-6">
-                <h3 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
-                Timeless Elegance 
+                <h3 className="text-4xl font-black text-black uppercase tracking-tighter">
+                  Elevate <br /> Your Style
                 </h3>
-                <p className="text-gray-700 text-base md:text-lg leading-relaxed">
-                  Where classic meets contemporary. Explore premium fabrics and designs crafted for lasting impression.
+                <p className="text-black/60 text-sm leading-relaxed max-w-sm font-medium">
+                  Discover timeless pieces that blend luxury with everyday confidence. Handpicked for the modern wardrobe.
                 </p>
                 <Link
-                  href="/Cloths?category=women" // Optional: filter link
-                  className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 via-teal-500 to-blue-500 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                  href="/Cloths?category=men"
+                  className="inline-flex items-center gap-8 group/btn"
                 >
-                  Shop
-                  <span className="ml-2">→</span>
+                  <span className="text-xs font-black uppercase tracking-[0.3em] border-b-2 border-black pb-1 group-hover/btn:pr-6 transition-all duration-300">
+                    Explore
+                  </span>
+                  <ArrowRight className="w-5 h-5 -translate-x-4 opacity-0 group-hover/btn:translate-x-0 group-hover/btn:opacity-100 transition-all duration-300" />
                 </Link>
               </div>
             </div>
           </div>
+
+          {/* Collection Two: Women */}
+          <div className="group bg-white overflow-hidden relative">
+            <div className="flex flex-col">
+              {/* Image Container */}
+              <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
+                <img
+                  src="/Images/block6.png"
+                  alt="Women's Collection"
+                  className="w-full h-full object-cover grayscale transition-transform duration-700 ease-out group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500" />
+              </div>
+
+              {/* Text Content */}
+              <div className="p-10 space-y-6">
+                <div className="flex items-center gap-4">
+                  <span className="h-[1px] w-8 bg-black" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">Timeless Women</span>
+                </div>
+                <h3 className="text-4xl font-black text-black uppercase tracking-tighter">
+                  Timeless <br /> Elegance
+                </h3>
+                <p className="text-black/60 text-sm leading-relaxed max-w-sm font-medium">
+                  Where classic meets contemporary. Explore premium fabrics and designs crafted for a lasting impression.
+                </p>
+                <Link
+                  href="/Cloths?category=women"
+                  className="inline-flex items-center gap-8 group/btn"
+                >
+                  <span className="text-xs font-black uppercase tracking-[0.3em] border-b-2 border-black pb-1 group-hover/btn:pr-6 transition-all duration-300">
+                    Explore
+                  </span>
+                  <ArrowRight className="w-5 h-5 -translate-x-4 opacity-0 group-hover/btn:translate-x-0 group-hover/btn:opacity-100 transition-all duration-300" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
         </div>
+      </div>
+
+      {/* Background Text Decor */}
+      <div className="absolute -bottom-20 -left-10 text-[20vw] font-black text-black/[0.02] select-none pointer-events-none uppercase">
+        Style
       </div>
     </section>
   );
