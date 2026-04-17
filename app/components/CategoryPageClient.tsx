@@ -1,7 +1,8 @@
 'use client';
 
 import ProductList from "@/Product UI/ProductList";
-import { ShoppingBag, Sparkles, TrendingUp, Shield, Link } from "lucide-react";
+import { ShoppingBag, ArrowRight, Shield, Activity, Layers } from "lucide-react";
+import Link from "next/link";
 
 type CategoryPageClientProps = {
   category: string;
@@ -15,174 +16,114 @@ export default function CategoryPageClient({
   description 
 }: CategoryPageClientProps) {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
-      {/* Hero Section with Animated Background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-orange-600 py-20 shadow-2xl">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
-        </div>
+    <main className="min-h-screen bg-white">
+      {/* 1. MINIMALIST HERO HEADER */}
+      <section className="relative pt-32 pb-20 px-6 md:px-10 border-b border-black/5">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
+            
+            <div className="max-w-3xl space-y-6">
+              <div className="flex items-center gap-3">
+                <span className="w-10 h-[1px] bg-black"></span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/40">
+                  Category Archive / {category}
+                </span>
+              </div>
+              
+              <h1 className="text-7xl md:text-9xl font-black uppercase tracking-tighter leading-[0.8] text-black">
+                {title}<span className="text-black/10">.</span>
+              </h1>
+              
+              <p className="text-sm md:text-base font-bold text-black/60 uppercase tracking-widest leading-relaxed max-w-2xl">
+                {description}
+              </p>
+            </div>
 
-        {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-6 py-2 bg-white/20 backdrop-blur-md rounded-full text-white font-semibold mb-6 border border-white/30 shadow-xl">
-            <Sparkles className="w-5 h-5" />
-            <span>Premium Collection</span>
-          </div>
-
-          {/* Title */}
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight drop-shadow-2xl">
-            {title}
-          </h1>
-
-          {/* Description */}
-          <p className="text-blue-100 text-xl md:text-2xl max-w-3xl mx-auto mb-10 leading-relaxed">
-            {description}
-          </p>
-
-          {/* Feature Pills */}
-          <div className="flex flex-wrap justify-center gap-4">
-            <FeaturePill icon={ShoppingBag} text="Curated Selection" />
-            <FeaturePill icon={TrendingUp} text="Latest Trends" />
-            <FeaturePill icon={Shield} text="Quality Guaranteed" />
+            {/* Architectural Feature Box */}
+            <div className="hidden lg:block border-l border-black/10 pl-10 py-2">
+              <div className="space-y-6">
+                <FeatureItem icon={Layers} text="Premium Construction" />
+                <FeatureItem icon={Activity} text="Seasonality: Permanent" />
+                <FeatureItem icon={Shield} text="Authenticity Verified" />
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Bottom Wave Decoration */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg 
-            viewBox="0 0 1440 120" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-auto"
-          >
-            <path 
-              d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" 
-              fill="rgb(249 250 251)"
-              className="fill-blue-50"
-            />
-          </svg>
+      {/* 2. ARCHITECTURAL STATS BAR */}
+      <section className="bg-black text-white py-12 px-6">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <StatItem number="500+" label="Pieces in Collection" />
+            <StatItem number="2026" label="Current Season" />
+            <StatItem number="HQ" label="Quality Controlled" />
+            <StatItem number="24/7" label="Support Access" />
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Stats Section */}
-      <div className="relative -mt-16 mb-12 z-20">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <StatCard 
-                number="500+" 
-                label="Products Available" 
-                color="text-blue-600"
-                bgColor="bg-blue-50"
-              />
-              <StatCard 
-                number="24/7" 
-                label="Customer Support" 
-                color="text-orange-600"
-                bgColor="bg-orange-50"
-              />
-              <StatCard 
-                number="100%" 
-                label="Quality Assured" 
-                color="text-green-600"
-                bgColor="bg-green-50"
-              />
+      {/* 3. PRODUCT FEED */}
+      <section className="py-20">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-10">
+          <div className="flex items-center justify-between mb-12">
+             <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-black/30">Available Catalogue</h2>
+             <div className="h-[1px] flex-1 mx-10 bg-black/5"></div>
+          </div>
+          <ProductList category={category} />
+        </div>
+      </section>
+
+      {/* 4. CALL TO ACTION / NAVIGATION */}
+      <section className="py-32 px-6 border-t border-black/5 bg-gray-50/50">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter leading-none mb-6">
+                Missing a <br /> <span className="italic text-black/20">Specific piece?</span>
+              </h2>
+              <p className="text-xs font-bold uppercase tracking-widest text-black/50 mb-8 max-w-md">
+                Our support team acts as personal curators. Reach out for sizing assistance or specific item requests.
+              </p>
+              <div className="flex flex-wrap gap-6">
+                <Link href="/contactUs" className="text-[10px] font-black uppercase tracking-[0.3em] bg-black text-white px-8 py-4 hover:bg-black/80 transition-all">
+                  Contact Support
+                </Link>
+                <Link href="/Cloths" className="text-[10px] font-black uppercase tracking-[0.3em] border border-black px-8 py-4 hover:bg-black hover:text-white transition-all">
+                  Full Catalogue
+                </Link>
+              </div>
+            </div>
+            
+            <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden group">
+               <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1441984908747-50f98ebb1f41?q=80&w=2070')] bg-cover bg-center opacity-40 group-hover:scale-110 transition-transform duration-1000" />
+               <ShoppingBag className="relative text-white w-12 h-12" />
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Info Banner */}
-      <div className="max-w-7xl mx-auto px-4 mb-8">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 shadow-xl border border-blue-500">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                <ShoppingBag className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-white">
-                <h3 className="text-xl font-bold">Shop with Confidence</h3>
-                <p className="text-blue-100">Free shipping on orders over ₦50,000</p>
-              </div>
-            </div>
-            <button className="px-8 py-3 bg-white text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl hover:scale-105">
-              Learn More
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Product List */}
-      <ProductList category={category} />
-
-      {/* Bottom CTA Section */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 py-16 mt-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-            Can't Find What You're Looking For?
-          </h2>
-          
-          <p className="text-orange-100 text-lg mb-8">
-            Contact our support team and we'll help you find the perfect product
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/contactUs">
-              <button className="px-10 py-4 bg-white text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105">
-                Contact Support
-              </button>
-            </a>
-          
-          <a href="/Cloths">
-              <button className="px-10 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-xl hover:shadow-2xl hover:scale-105 border-2 border-white/30">
-                Browse All Products
-              </button>
-            </a>
-          </div>
-        </div>
-      </div>
+      </section>
     </main>
   );
 }
 
-// Feature Pill Component
-function FeaturePill({ icon: Icon, text }: { icon: any; text: string }) {
+// Minimal Feature Component
+function FeatureItem({ icon: Icon, text }: { icon: any; text: string }) {
   return (
-    <div className="flex items-center gap-2 px-5 py-2.5 bg-white/20 backdrop-blur-md rounded-full text-white font-semibold border border-white/30 shadow-lg hover:bg-white/30 transition-all">
-      <Icon className="w-5 h-5" />
-      <span>{text}</span>
+    <div className="flex items-center gap-4 group">
+      <div className="p-2 border border-black/5 group-hover:border-black/20 transition-colors">
+        <Icon className="w-4 h-4 text-black" />
+      </div>
+      <span className="text-[10px] font-black uppercase tracking-widest text-black/60 group-hover:text-black transition-colors">{text}</span>
     </div>
   );
 }
 
-// Stat Card Component
-function StatCard({ 
-  number, 
-  label, 
-  color,
-  bgColor 
-}: { 
-  number: string; 
-  label: string;
-  color: string;
-  bgColor: string;
-}) {
+// Minimal Stat Component
+function StatItem({ number, label }: { number: string; label: string }) {
   return (
-    <div className="text-center">
-      <div className={`inline-flex items-center justify-center w-16 h-16 ${bgColor} rounded-2xl mb-4`}>
-        <span className={`text-3xl font-black ${color}`}>
-          {number.charAt(0)}
-        </span>
-      </div>
-      <div className={`text-4xl font-black ${color} mb-2`}>
-        {number}
-      </div>
-      <div className="text-gray-600 font-semibold">
-        {label}
-      </div>
+    <div className="space-y-1">
+      <div className="text-2xl font-black tracking-tighter uppercase">{number}</div>
+      <div className="text-[9px] font-bold tracking-[0.2em] uppercase text-white/40">{label}</div>
     </div>
   );
 }
