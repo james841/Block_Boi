@@ -20,9 +20,12 @@ export default async function ProductsPage() {
     },
   });
 
-  // Dates aren't serializable across the server/client boundary as Date objects
-  const serialized = products.map((p: { createdAt: Date; [key: string]: any }) => ({
+  // Dates (and Decimals, if your schema uses them for price/oldPrice) aren't
+  // serializable across the server/client boundary, so convert them here.
+  const serialized = products.map((p) => ({
     ...p,
+    price: Number(p.price),
+    oldPrice: p.oldPrice !== null && p.oldPrice !== undefined ? Number(p.oldPrice) : null,
     createdAt: p.createdAt.toISOString(),
   }));
 
