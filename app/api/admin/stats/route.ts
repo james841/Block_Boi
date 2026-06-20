@@ -27,7 +27,10 @@ export async function GET() {
       prisma.user.count(), // Total customers
     ]);
 
-    const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+    const totalRevenue = (orders as { total: number }[]).reduce(
+      (sum: number, order) => sum + order.total,
+      0
+    );
 
     const stats = {
       totalOrders,
