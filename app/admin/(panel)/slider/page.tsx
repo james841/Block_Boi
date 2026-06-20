@@ -8,7 +8,27 @@ export default async function SliderPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const serialized = sliders.map((s) => ({
+  type RawSlider = {
+    id: number;
+    title: string;
+    imageUrl: string;
+    Button?: string | null;
+    subtitle?: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+
+  type SerializedSlider = {
+    id: number;
+    title: string;
+    imageUrl: string;
+    Button?: string | null;
+    subtitle?: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  const serialized: SerializedSlider[] = sliders.map((s: RawSlider) => ({
     ...s,
     createdAt: s.createdAt.toISOString(),
     updatedAt: s.updatedAt.toISOString(),
