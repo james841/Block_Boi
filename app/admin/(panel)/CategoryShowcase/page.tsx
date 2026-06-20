@@ -11,7 +11,7 @@ export default async function CategoryShowcasePage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const serialized = categories.map((c) => ({
+  const serialized = categories.map((c: { createdAt: Date; updatedAt: Date; [key: string]: any }) => ({
     ...c,
     createdAt: c.createdAt.toISOString(),
     updatedAt: c.updatedAt.toISOString(),
