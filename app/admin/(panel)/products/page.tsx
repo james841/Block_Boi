@@ -21,7 +21,10 @@ export default async function ProductsPage() {
   });
 
   // Dates aren't serializable across the server/client boundary as Date objects
-  const serialized = products.map((p) => ({ ...p, createdAt: p.createdAt.toISOString() }));
+  const serialized = products.map((p: { createdAt: Date; [key: string]: any }) => ({
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+  }));
 
   return <ProductsTable initialProducts={serialized} />;
 }
