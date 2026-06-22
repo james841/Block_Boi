@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "./Navigation";
 import CartDrawer from "./CartDrawer";
+import Footer from "./Footer";
 
 export default function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -12,6 +13,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     <>
       {!isAdmin && <Navbar />}
       {!isAdmin && <CartDrawer />}
+     
       {children}
     </>
   );

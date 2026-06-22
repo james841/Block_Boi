@@ -4,6 +4,8 @@ import Newsletter from "./components/Newsletter";
 import Banner from "./components/Banner";
 import PopularProducts from "./components/ProductGrid";
 import GetStartedSection from "./components/GetStartedSection";
+import FloatingWhatsApp from "./components/FloatingWhatsApp";
+import SupportBanner from "./components/SupportBanner";
 
 
 
@@ -17,10 +19,16 @@ export default function AboutPage() {
   return (
     <div>
       <Homeslider />
+       <SupportBanner />
        <PopularProducts/>
+
       <Banner />
       <Newsletter />
       <GetStartedSection />
+       <FloatingWhatsApp
+          phoneNumber="2349021080632"
+          message="Hello, I need help with my order."
+        />
     
       <h1 className="text-4xl font-bold text-gray-900"></h1>
     </div>

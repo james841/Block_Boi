@@ -6,6 +6,7 @@ import ClientProviders from "./components/ClientProvider";
 import { ThemeProvider } from "next-themes";
 import { CurrencyProvider } from "./contexts/CurrencyContext";
 import LayoutContent from "./components/LayoutContent";
+import SupportBanner from "./components/SupportBanner";
 
 
 const geist = localFont({
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CurrencyProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ClientProviders>
+            
               <LayoutContent>{children}</LayoutContent>
               <Footer />
             </ClientProviders>
