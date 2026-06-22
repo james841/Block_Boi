@@ -94,14 +94,14 @@ export default function ProductsTable({
       />
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Total Products" value={stats.total} icon={Package} tone={"indigo" as unknown as Tone} />
-        <StatCard label="Featured" value={stats.featured} icon={Star} tone={"amber" as unknown as Tone} />
-        <StatCard
-          label="Page Value"
-          value={`₦${(stats.totalValue / 1000).toFixed(1)}k`}
-          icon={DollarSign}
-          tone={"emerald" as unknown as Tone}
-        />
+      <StatCard label="Total Products" value={stats.total} icon={Package} tone="stone" />
+<StatCard label="Featured" value={stats.featured} icon={Star} tone="amber" />
+<StatCard
+  label="Page Value"
+  value={`₦${(stats.totalValue / 1000).toFixed(1)}k`}
+  icon={DollarSign}
+  tone="emerald"
+/>
       </div>
 
       <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
