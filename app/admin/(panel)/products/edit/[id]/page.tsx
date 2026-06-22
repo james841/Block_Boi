@@ -8,6 +8,7 @@ import PageHeader from "@/app/components/admin/ui/PageHeader";
 import Field from "@/app/components/admin/ui/Field";
 import ImageDropzone from "@/app/components/admin/ui/ImageDropzone";
 import TagInput from "@/app/components/admin/ui/TagInput";
+import SuccessToast from "@/app/components/admin/ui/SuccessToast";
 
 
 type Product = {
@@ -31,6 +32,7 @@ export default function EditProductPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [mainImagePreview, setMainImagePreview] = useState("");
@@ -130,8 +132,11 @@ export default function EditProductPage() {
         }),
       });
       if (res.ok) {
-        router.push("/admin/products");
-        router.refresh();
+        setShowSuccessToast(true);
+        setTimeout(() => {
+          router.push("/admin/products");
+          router.refresh();
+        }, 2000);
       } else {
         const err = await res.json();
         alert(err.message || "Update failed");
@@ -154,6 +159,12 @@ export default function EditProductPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
+      <SuccessToast
+        message="✨ Product updated successfully!"
+        isVisible={showSuccessToast}
+        onClose={() => setShowSuccessToast(false)}
+        autoCloseDuration={5000}
+      />
       <PageHeader title="Edit Product" />
 
       <form onSubmit={handleSubmit} className="space-y-5">

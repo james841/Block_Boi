@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Edit, Trash2, Search, Package, Star, DollarSign } from "lucide-react";
+import { Plus, Edit, Trash2, Search, Package, Star, DollarSign, ChevronLeft, ChevronRight } from "lucide-react";
 import StatCard from "@/app/components/admin/ui/StatCard";
 import EmptyState from "@/app/components/admin/ui/EmptyState";
 import PageHeader from "@/app/components/admin/ui/PageHeader";
@@ -19,14 +19,29 @@ type Product = {
   createdAt: string;
 };
 
-export default function ProductsTable({ initialProducts }: { initialProducts: Product[] }) {
+export default function ProductsTable({
+  initialProducts,
+  totalCount,
+  currentPage,
+  pageSize,
+}: {
+  initialProducts: Product[];
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
+}) {
   const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const categories = ["all", ...Array.from(new Set(products.map((p) => p.category).filter(Boolean)))] as string[];
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const categories = [
+    "all",
+    ...Array.from(new Set(products.map((p) => p.category).filter(Boolean))),
+  ] as string[];
 
   const filtered = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -35,7 +50,7 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
   });
 
   const stats = {
-    total: products.length,
+    total: totalCount, // use the real total, not just this page
     featured: products.filter((p) => p.featuredOnHomepage).length,
     totalValue: products.reduce((sum, p) => sum + p.price, 0),
   };
@@ -46,8 +61,8 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
     try {
       const res = await fetch(`/api/Products?id=${id}`, { method: "DELETE" });
       if (res.ok) {
-        setProducts((prev) => prev.filter((p) => p.id !== id)); // instant UI feedback
-        router.refresh(); // re-sync the server-fetched list
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+        router.refresh();
       } else {
         const error = await res.json();
         alert(error.error || "Failed to delete");
@@ -59,11 +74,15 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
     }
   };
 
+  const goToPage = (page: number) => {
+    router.push(`/admin/products?page=${page}`);
+  };
+
   return (
     <div>
       <PageHeader
         title="Products"
-        subtitle={`${products.length} total products`}
+        subtitle={`${totalCount} total products`}
         action={
           <Link
             href="/admin/products/add"
@@ -77,7 +96,12 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Total Products" value={stats.total} icon={Package} tone="indigo" />
         <StatCard label="Featured" value={stats.featured} icon={Star} tone="amber" />
-        <StatCard label="Inventory Value" value={`₦${(stats.totalValue / 1000).toFixed(1)}k`} icon={DollarSign} tone="emerald" />
+        <StatCard
+          label="Page Value"
+          value={`₦${(stats.totalValue / 1000).toFixed(1)}k`}
+          icon={DollarSign}
+          tone="emerald"
+        />
       </div>
 
       <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
@@ -97,7 +121,9 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
               key={cat}
               onClick={() => setCategoryFilter(cat)}
               className={`rounded-lg px-3 py-2 text-xs font-medium capitalize transition-colors ${
-                categoryFilter === cat ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                categoryFilter === cat
+                  ? "bg-indigo-600 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
               {cat === "all" ? "All" : cat}
@@ -111,11 +137,19 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((product) => (
-            <div key={product.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-md">
+            <div
+              key={product.id}
+              className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-md"
+            >
               <div className="relative aspect-square bg-slate-50">
                 {product.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-slate-300">
                     <Package className="h-14 w-14" />
@@ -133,7 +167,9 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
                 <div className="mb-3 flex items-center gap-2">
                   <span className="text-lg font-bold text-slate-900">₦{product.price.toLocaleString()}</span>
                   {product.oldPrice && (
-                    <span className="text-xs text-slate-400 line-through">₦{product.oldPrice.toLocaleString()}</span>
+                    <span className="text-xs text-slate-400 line-through">
+                      ₦{product.oldPrice.toLocaleString()}
+                    </span>
                   )}
                 </div>
                 {product.category && (
@@ -165,6 +201,64 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4">
+          <p className="text-sm text-slate-500">
+            Page <span className="font-semibold text-slate-800">{currentPage}</span> of{" "}
+            <span className="font-semibold text-slate-800">{totalPages}</span>
+            <span className="ml-2 text-slate-400">({totalCount} products)</span>
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" /> Prev
+            </button>
+
+            {/* Page number buttons */}
+            <div className="flex gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                // Show pages around current
+                let pageNum: number;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => goToPage(pageNum)}
+                    className={`h-8 w-8 rounded-lg text-xs font-medium transition-colors ${
+                      pageNum === currentPage
+                        ? "bg-indigo-600 text-white"
+                        : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       )}
     </div>

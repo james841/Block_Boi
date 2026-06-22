@@ -8,11 +8,13 @@ import PageHeader from "@/app/components/admin/ui/PageHeader";
 import ImageDropzone from "@/app/components/admin/ui/ImageDropzone";
 import Field from "@/app/components/admin/ui/Field";
 import TagInput from "@/app/components/admin/ui/TagInput";
+import SuccessToast from "@/app/components/admin/ui/SuccessToast";
 
 
 export default function AddProductPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [mainImagePreview, setMainImagePreview] = useState("");
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
   const [colors, setColors] = useState<string[]>([]);
@@ -70,8 +72,12 @@ export default function AddProductPage() {
           images: galleryPreviews,
         }),
       });
-      if (res.ok) router.push("/admin/products");
-      else {
+      if (res.ok) {
+        setShowSuccessToast(true);
+        setTimeout(() => {
+          router.push("/admin/products");
+        }, 2000);
+      } else {
         const err = await res.json();
         alert(err.error || "Failed to add product");
       }
@@ -84,6 +90,12 @@ export default function AddProductPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
+      <SuccessToast
+        message="✨ Product added successfully!"
+        isVisible={showSuccessToast}
+        onClose={() => setShowSuccessToast(false)}
+        autoCloseDuration={5000}
+      />
       <PageHeader title="Add New Product" subtitle="Fill in the product details below" />
 
       <form onSubmit={handleSubmit} className="space-y-5">
