@@ -1,7 +1,9 @@
+// 📁 FILE: app/api/CategoriesShowcase/route.ts
+// (the collection route — no [id] folder, handles GET list + POST create)
+
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-
+import { getAdminSession } from "@/lib/adminAuth";
 
 export async function GET() {
   try {
@@ -22,7 +24,7 @@ export async function GET() {
 // POST - Create new category showcase
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getAdminSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

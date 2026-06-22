@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Edit, Plus, X, Image as ImageIcon, Loader2, Link2 } from "lucide-react";
-import PageHeader from "@/app/components/admin/ui/PageHeader";
-import Field from "@/app/components/admin/ui/Field";
 import ImageDropzone from "@/app/components/admin/ui/ImageDropzone";
+import PageHeader from "@/app/components/admin/ui/PageHeader";
 import EmptyState from "@/app/components/admin/ui/EmptyState";
+import Field from "@/app/components/admin/ui/Field";
 
 type Slider = {
   id: number;
@@ -18,10 +18,50 @@ type Slider = {
   updatedAt: string;
 };
 
+// Resizes to a sane max dimension and re-encodes as JPEG, returning a Blob
+// ready to upload — this is what keeps the payload off the RSC/JSON wire
+// entirely, instead of just shrinking a base64 string.
+function compressImage(file: File, maxDimension = 1920, quality = 0.78): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("Canvas not supported"));
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => (blob ? resolve(blob) : reject(new Error("Compression failed"))),
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = () => reject(new Error("Could not read image"));
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error("Could not read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function SlidersGrid({ initialSliders }: { initialSliders: Slider[] }) {
   const router = useRouter();
   const [sliders, setSliders] = useState(initialSliders);
   const [submitting, setSubmitting] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingSlider, setEditingSlider] = useState<Slider | null>(null);
   const [formData, setFormData] = useState({ title: "", imageUrl: "", Button: "", subtitle: "" });
@@ -35,16 +75,37 @@ export default function SlidersGrid({ initialSliders }: { initialSliders: Slider
     router.refresh();
   };
 
-  const handleImageFile = (file: File) => {
-    if (file.size > 5 * 1024 * 1024) return alert("Image size should be less than 5MB");
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const b64 = reader.result as string;
-      setFormData((f) => ({ ...f, imageUrl: b64 }));
-      setImagePreview(b64);
+  const handleImageFile = async (file: File) => {
+    if (file.size > 15 * 1024 * 1024) return alert("Image is too large (max 15MB before compression)");
+    setCompressing(true);
+    try {
+      const compressedBlob = await compressImage(file);
+
+      // Instant local preview without waiting for the upload round-trip
+      const localPreviewUrl = URL.createObjectURL(compressedBlob);
+      setImagePreview(localPreviewUrl);
+
+      const uploadForm = new FormData();
+      uploadForm.append("file", compressedBlob, "slider.jpg");
+
+      const res = await fetch("/api/slider/upload", {
+        method: "POST",
+        body: uploadForm,
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Upload failed");
+      }
+
+      const { url } = await res.json();
+      setFormData((f) => ({ ...f, imageUrl: url }));
       setImageChanged(true);
-    };
-    reader.readAsDataURL(file);
+    } catch (err: any) {
+      alert(err.message || "Could not process that image — try a different file");
+    } finally {
+      setCompressing(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -233,17 +294,24 @@ export default function SlidersGrid({ initialSliders }: { initialSliders: Slider
                   />
                 </Field>
 
-                <ImageDropzone
-                  label="Image"
-                  required
-                  preview={imagePreview}
-                  onFile={handleImageFile}
-                  onRemove={() => {
-                    setFormData({ ...formData, imageUrl: "" });
-                    setImagePreview("");
-                    setImageChanged(true);
-                  }}
-                />
+                <div>
+                  <ImageDropzone
+                    label="Image"
+                    required
+                    preview={imagePreview}
+                    onFile={handleImageFile}
+                    onRemove={() => {
+                      setFormData({ ...formData, imageUrl: "" });
+                      setImagePreview("");
+                      setImageChanged(true);
+                    }}
+                  />
+                  {compressing && (
+                    <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-indigo-600">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading image...
+                    </p>
+                  )}
+                </div>
 
                 <div className="flex gap-3 pt-2">
                   <button
@@ -256,7 +324,7 @@ export default function SlidersGrid({ initialSliders }: { initialSliders: Slider
                   </button>
                   <button
                     type="submit"
-                    disabled={submitting}
+                    disabled={submitting || compressing}
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
                   >
                     {submitting ? (

@@ -124,3 +124,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .input {
+    @apply block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm transition duration-200 ease-in-out focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200/70;
+  }
+}

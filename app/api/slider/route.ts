@@ -1,15 +1,26 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // Use your centralized prisma instance
-import { getServerSession } from "next-auth";
+import { prisma } from "@/lib/prisma";
+import { redis } from "@/lib/redis";
+import { getAdminSession } from "@/lib/adminAuth";
+
+const SLIDER_CACHE_KEY = "sliders:list";
+const SLIDER_CACHE_TTL_SECONDS = 3600; // safety-net expiry; invalidation below keeps it fresh in practice
 
 // GET - Fetch all sliders
 export async function GET() {
   try {
+    const cached = await redis.get(SLIDER_CACHE_KEY);
+    if (cached) {
+      return NextResponse.json({ sliders: cached });
+    }
+
     const sliders = await prisma.slider.findMany({
       orderBy: { createdAt: "desc" },
     });
 
-    console.log("Fetched sliders:", sliders);
+    await redis.set(SLIDER_CACHE_KEY, sliders, { ex: SLIDER_CACHE_TTL_SECONDS });
+
+    console.log("Fetched sliders from DB:", sliders.length);
 
     return NextResponse.json({ sliders });
   } catch (error: any) {
@@ -24,7 +35,7 @@ export async function GET() {
 // POST - Create new slider
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getAdminSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -47,6 +58,8 @@ export async function POST(request: Request) {
         subtitle: subtitle || null,
       },
     });
+
+    await redis.del(SLIDER_CACHE_KEY);
 
     console.log("✅ Slider created:", slider);
 

@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Edit, Plus, X, Image as ImageIcon } from "lucide-react";
 import PageHeader from "@/app/components/admin/ui/PageHeader";
-import EmptyState from "@/app/components/admin/ui/EmptyState";
 import Field from "@/app/components/admin/ui/Field";
 import ImageDropzone from "@/app/components/admin/ui/ImageDropzone";
+import EmptyState from "@/app/components/admin/ui/EmptyState";
+
 
 type CategoryShowcase = {
   id: number;

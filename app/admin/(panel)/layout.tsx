@@ -2,19 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { AdminInfo } from "@/app/components/admin/AdminAuthContext";
 import { AdminAuthProvider } from "@/app/components/admin/AdminAuthContext";
 import AdminSidebar from "@/app/components/admin/AdminSidebar";
 import AdminTopbar from "@/app/components/admin/AdminTopbar";
 
-
-// Minimal AdminInfo type to satisfy TypeScript when no shared types are available here.
-interface AdminInfo {
-  id: string;
-  name: string;
-  username: string; // required by AdminAuthContext.AdminInfo
-  email?: string;
-  role?: string;
-}
 
 export default function AdminPanelLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -52,15 +44,15 @@ export default function AdminPanelLayout({ children }: { children: React.ReactNo
 
   if (checking || !admin) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-[#F8F3EC]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#C2410C] border-t-transparent" />
       </div>
     );
   }
 
   return (
     <AdminAuthProvider admin={admin}>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-[#F8F3EC]">
         <AdminSidebar />
         <div className="pl-64">
           <AdminTopbar />

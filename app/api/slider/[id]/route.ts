@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
+import { redis } from "@/lib/redis";
+import { getAdminSession } from "@/lib/adminAuth";
+
+const SLIDER_CACHE_KEY = "sliders:list";
 
 // PUT - Update slider
 export async function PUT(
@@ -8,7 +11,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getAdminSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -30,14 +33,12 @@ export async function PUT(
       );
     }
 
-    // Prepare update data - only include fields that are provided
     const updateData: any = {
       title,
       Button: Button || null,
       subtitle: subtitle || null,
     };
 
-    // Only update imageUrl if it's provided (meaning it was changed)
     if (imageUrl) {
       updateData.imageUrl = imageUrl;
     }
@@ -46,6 +47,8 @@ export async function PUT(
       where: { id },
       data: updateData,
     });
+
+    await redis.del(SLIDER_CACHE_KEY);
 
     console.log("✅ Slider updated:", slider.id, "- Image updated:", !!imageUrl);
 
@@ -65,7 +68,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getAdminSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -80,6 +83,8 @@ export async function DELETE(
     await prisma.slider.delete({
       where: { id },
     });
+
+    await redis.del(SLIDER_CACHE_KEY);
 
     console.log("✅ Slider deleted:", id);
 

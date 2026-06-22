@@ -17,8 +17,8 @@ export default function AboutPage() {
   return (
     <div>
       <Homeslider />
-      <Banner />
        <PopularProducts/>
+      <Banner />
       <Newsletter />
       <GetStartedSection />
     

@@ -10,9 +10,8 @@ let featuredProductsCache: {
   timestamp: number;
 } = { data: null, timestamp: 0 };
 
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 5 * 60 * 1000; 
 
-// === ADMIN AUTH MIDDLEWARE ===
 async function requireAdmin() {
   const session = await getAdminSession();
   if (!session) {
@@ -42,7 +41,7 @@ export async function GET(request: NextRequest) {
         featuredProductsCache.data &&
         now - featuredProductsCache.timestamp < CACHE_DURATION
       ) {
-        console.log('✅ Serving featured products from server cache');
+       
         return NextResponse.json(
           {
             success: true,

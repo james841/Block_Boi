@@ -97,7 +97,7 @@ export default function Footer() {
             {[
               { icon: TikTokIcon, href: "https://www.tiktok.com/@blocboi_", label: "TikTok" },
               { icon: Twitter, href: "https://x.com/thblockboii", label: "Twitter" },
-              { icon: Instagram, href: "https://www.instagram.com/__block.boi", label: "Instagram" },
+              { icon: Instagram, href: "https://www.instagram.com/theblock.boi?igsh=bDJ1cHJyamk3c3hx&utm_source=qr", label: "Instagram" },
               { icon: Facebook, href: "https://facebook.com/blockboi", label: "Facebook" },
             ].map((social) => (
               <a

@@ -1,19 +1,22 @@
+// 📁 FILE: app/api/CategoriesShowcase/[id]/route.ts
+// (the single-record route — lives in an [id] folder, handles PUT update + DELETE for one category)
+
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getAdminSession } from "@/lib/adminAuth";
 
 // PUT - Update category showcase
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }  // ← Changed here
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getAdminSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id: idStr } = await params;  // ← Await params
+    const { id: idStr } = await params;
     const id = parseInt(idStr);
 
     if (isNaN(id)) {
@@ -69,15 +72,15 @@ export async function PUT(
 // DELETE - Delete category showcase
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }  // ← Changed here
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getAdminSession();
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id: idStr } = await params;  // ← Await params
+    const { id: idStr } = await params;
     const id = parseInt(idStr);
 
     if (isNaN(id)) {

@@ -4,10 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Edit, Trash2, Search, Package, Star, DollarSign } from "lucide-react";
-import PageHeader from "@/app/components/admin/ui/PageHeader";
 import StatCard from "@/app/components/admin/ui/StatCard";
 import EmptyState from "@/app/components/admin/ui/EmptyState";
-
+import PageHeader from "@/app/components/admin/ui/PageHeader";
 
 type Product = {
   id: number;

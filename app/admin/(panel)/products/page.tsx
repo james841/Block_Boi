@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import ProductsTable from "./ProductsTable";
 
-export const dynamic = "force-dynamic"; // always show fresh stock/price data
+export const revalidate = 60; // cache this page for 60 seconds for faster admin loads
 
 export default async function ProductsPage() {
   // NOTE: confirmed field names from your own Product type (admin/products/page.tsx).
@@ -20,14 +20,8 @@ export default async function ProductsPage() {
     },
   });
 
-  // Dates (and Decimals, if your schema uses them for price/oldPrice) aren't
-  // serializable across the server/client boundary, so convert them here.
-  const serialized = products.map((p) => ({
-    ...p,
-    price: Number(p.price),
-    oldPrice: p.oldPrice !== null && p.oldPrice !== undefined ? Number(p.oldPrice) : null,
-    createdAt: p.createdAt.toISOString(),
-  }));
+  // Dates aren't serializable across the server/client boundary as Date objects
+  const serialized = products.map((p) => ({ ...p, createdAt: p.createdAt.toISOString() }));
 
   return <ProductsTable initialProducts={serialized} />;
 }
