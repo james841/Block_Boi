@@ -1,6 +1,6 @@
 // app/api/slider/upload/route.ts
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { getAdminSession } from "@/lib/adminAuth";
 
 export async function POST(request: Request) {
@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
 
+    const supabaseAdmin = getSupabaseAdmin();
     const { error: uploadError } = await supabaseAdmin.storage
       .from("sliders")
       .upload(fileName, buffer, {
