@@ -3,33 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+export const dynamic = "force-dynamic"; // ← ADD THIS — stops Next.js caching the route
+
 export async function GET(_req: NextRequest): Promise<NextResponse> {
   try {
-  
     const products = await prisma.product.findMany({
-      where: {
-        featuredOnHomepage: true,
-      },
-      take: 12, 
-      orderBy: {
-        createdAt: "desc",
-      },
+      where: { featuredOnHomepage: true },
+      take: 12,
+      orderBy: { createdAt: "desc" },
     });
-    
-    return NextResponse.json({
-      success: true,
-      products,
-    });
-  } catch (error: any) {
-    // 🧠 Enhanced error logging for debugging
-    console.error("Error fetching featured products:", error);
 
+    return NextResponse.json({ success: true, products });
+  } catch (error: any) {
+    console.error("Error fetching featured products:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message: "Error fetching featured products",
-        error: error?.message || "Unknown error occurred",
-      },
+      { success: false, message: "Error fetching featured products", error: error?.message || "Unknown error occurred" },
       { status: 500 }
     );
   }

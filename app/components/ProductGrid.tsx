@@ -34,7 +34,7 @@ export default function PopularProducts() {
   const { formatPrice } = useCurrency();
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(true);
     loadLikedProducts();
   }, []);
 
@@ -51,7 +51,7 @@ export default function PopularProducts() {
       }
 
       setCacheStatus("loading");
-      const response = await fetch("/api/Products/Featured");
+      const response = await fetch(`/api/Products/Featured?t=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Failed to fetch");
       
       const data = await response.json();

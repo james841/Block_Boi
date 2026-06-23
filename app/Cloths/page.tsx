@@ -13,38 +13,42 @@ export const metadata: Metadata = {
 
 export default function ClothesPage() {
   return (
-    <main className="mt-10 lg:mt-32 bg-white">
-     
-      {/* 2. CATEGORY CURATION */}
-      <section className="bg-white">
-        <div className="max-w-[1400px] mx-auto py-12">
+    <main className="bg-white min-h-screen pt-16 lg:pt-24 pb-16">
+      
+      {/* 1. CATEGORY CURATION */}
+      <section className="px-4 lg:px-8">
+        <div className="max-w-[1400px] mx-auto pb-10 border-b border-black/5">
           <CategoryShowcase />
         </div>
       </section>
 
-      {/* 3. STRUCTURAL DIVIDER */}
-      <div className="w-full border-y border-black/5 py-8 bg-black/[0.02]">
-        <div className="max-w-[1400px] mx-auto px-6 flex justify-between items-center">
-            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-black/20 italic">Block Boi Collective</span>
-            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-black/20">All Rights Reserved</span>
-        </div>
-      </div>
-
-      {/* 4. MAIN PRODUCT FEED */}
-      <section className="px-6 py-24">
+      {/* 2. MAIN PRODUCT FEED */}
+      <section className="px-4 lg:px-8 pt-12">
         <div className="max-w-[1400px] mx-auto">
-          <div className="mb-20 space-y-4">
-             <h2 className="text-4xl lg:text-5xl font-black uppercase tracking-tighter">
+          
+          {/* Header Context Section */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 pb-6 border-b border-black/10">
+            <div className="space-y-2">
+              <h1 className="text-3xl lg:text-5xl font-black uppercase tracking-tighter">
                 The Collections<span className="text-black/20">/</span>
-             </h2>
-             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40">
-               Browse full range of curated arrivals — updated weekly.
-             </p>
+              </h1>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">
+                Browse full range of curated arrivals — updated weekly.
+              </p>
+            </div>
+            
+            {/* Repurposed "Block Boi Collective" text as a sleek contextual accent */}
+            <div className="hidden md:flex flex-col items-end text-[9px] font-semibold uppercase tracking-[0.3em] text-black/30">
+              <span>Block Boi Collective</span>
+              <span>All Rights Reserved ©</span>
+            </div>
           </div>
 
+          {/* Product Feed */}
           <Suspense fallback={<CategorySkeleton />}>
             <ProductList />
           </Suspense>
+          
         </div>
       </section>
     </main>

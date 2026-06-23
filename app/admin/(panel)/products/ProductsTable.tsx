@@ -50,7 +50,7 @@ export default function ProductsTable({
   });
 
   const stats = {
-    total: totalCount, // use the real total, not just this page
+    total: totalCount,
     featured: products.filter((p) => p.featuredOnHomepage).length,
     totalValue: products.reduce((sum, p) => sum + p.price, 0),
   };
@@ -94,14 +94,14 @@ export default function ProductsTable({
       />
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <StatCard label="Total Products" value={stats.total} icon={Package} tone="stone" />
-<StatCard label="Featured" value={stats.featured} icon={Star} tone="amber" />
-<StatCard
-  label="Page Value"
-  value={`₦${(stats.totalValue / 1000).toFixed(1)}k`}
-  icon={DollarSign}
-  tone="emerald"
-/>
+        <StatCard label="Total Products" value={stats.total} icon={Package} tone="stone" />
+        <StatCard label="Featured" value={stats.featured} icon={Star} tone="amber" />
+        <StatCard
+          label="Page Value"
+          value={`₦${(stats.totalValue / 1000).toFixed(1)}k`}
+          icon={DollarSign}
+          tone="emerald"
+        />
       </div>
 
       <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
@@ -204,7 +204,6 @@ export default function ProductsTable({
         </div>
       )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-8 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4">
           <p className="text-sm text-slate-500">
@@ -220,21 +219,13 @@ export default function ProductsTable({
             >
               <ChevronLeft className="h-3.5 w-3.5" /> Prev
             </button>
-
-            {/* Page number buttons */}
             <div className="flex gap-1">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                // Show pages around current
                 let pageNum: number;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
+                if (totalPages <= 5) pageNum = i + 1;
+                else if (currentPage <= 3) pageNum = i + 1;
+                else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
+                else pageNum = currentPage - 2 + i;
                 return (
                   <button
                     key={pageNum}
@@ -250,7 +241,6 @@ export default function ProductsTable({
                 );
               })}
             </div>
-
             <button
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}

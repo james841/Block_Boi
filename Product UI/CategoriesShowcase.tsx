@@ -69,7 +69,7 @@ export default function CategoryShowcase() {
   }
 
   return (
-    <section className="relative w-full py-24 bg-white overflow-hidden">
+    <section className="relative w-full py-3 bg-white overflow-hidden">
       <div className="relative max-w-[1400px] mx-auto px-6 md:px-10">
         
         {/* Header Section */}

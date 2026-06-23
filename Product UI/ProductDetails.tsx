@@ -36,20 +36,31 @@ export default function ProductDetails() {
   const [error, setError] = useState<string>('');
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    fetchProduct();
+    if (params.id) fetchProduct();
   }, [params.id]);
 
   const fetchProduct = async () => {
     try {
       const response = await fetch(`/api/Products/${params.id}`);
       const data = await response.json();
+
+      // Guard: API returned an error or product doesn't exist
+      if (!response.ok || !data.success || !data.product) {
+        setNotFound(true);
+        return;
+      }
+
       setProduct(data.product);
+
+      // Safe access — only set defaults if arrays have values
       if (data.product.colors?.length > 0) setSelectedColor(data.product.colors[0]);
       if (data.product.sizes?.length > 0) setSelectedSize(data.product.sizes[0]);
     } catch (error) {
       console.error('Error fetching product:', error);
+      setNotFound(true);
     } finally {
       setIsLoading(false);
     }
@@ -72,13 +83,31 @@ export default function ProductDetails() {
     });
   };
 
-  if (isLoading) return <div className="min-h-screen bg-white flex items-center justify-center font-black uppercase tracking-widest text-[10px]">Loading Archive...</div>;
-  if (!product) return <div className="min-h-screen bg-white flex items-center justify-center font-black uppercase text-[10px]">Object Not Found</div>;
+  if (isLoading) return (
+    <div className="min-h-screen bg-white flex items-center justify-center font-black uppercase tracking-widest text-[10px]">
+      Loading Archive...
+    </div>
+  );
 
-  const allImages = [product.imageUrl, ...product.images].filter(Boolean) as string[];
+  // Clean not-found state instead of crashing
+  if (notFound || !product) return (
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-6">
+      <p className="font-black uppercase tracking-widest text-[10px] text-black/40">
+        Object Not Found
+      </p>
+      <button
+        onClick={() => router.push('/shop')}
+        className="text-[10px] font-black uppercase tracking-widest underline"
+      >
+        Return to Shop
+      </button>
+    </div>
+  );
+
+  const allImages = [product.imageUrl, ...(product.images ?? [])].filter(Boolean) as string[];
 
   return (
-    <main className="  min-h-screen bg-white pb-32">
+    <main className="min-h-screen bg-white pb-32">
       <div className="max-w-[1400px] mx-auto px-5 lg:px-10 pt-24 lg:pt-32">
         
         {/* MOBILE NAVIGATION HEADER */}
@@ -93,17 +122,21 @@ export default function ProductDetails() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
           
-          {/* 1. IMAGE GALLERY (7/12 Width) - REDUCED LENGTH */}
+          {/* IMAGE GALLERY */}
           <div className="lg:col-span-7 space-y-4">
-            {/* Aspect ratio changed from 4/5 (portrait) to square (1/1) */}
             <div className="relative aspect-square bg-gray-50 overflow-hidden border border-black/5">
-              <img
-                src={allImages[selectedImage]}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
+              {allImages.length > 0 ? (
+                <img
+                  src={allImages[selectedImage]}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-black/20 text-[10px] uppercase tracking-widest font-black">
+                  No Image
+                </div>
+              )}
               
-              {/* Image Navigation Arrows */}
               {allImages.length > 1 && (
                 <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between z-10 pointer-events-none">
                   <button 
@@ -129,21 +162,22 @@ export default function ProductDetails() {
               </button>
             </div>
             
-            {/* Thumbnail Grid */}
-            <div className="grid grid-cols-5 gap-2 pb-2 overflow-x-auto scrollbar-hide">
-              {allImages.map((img, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`aspect-square border transition-all ${selectedImage === index ? 'border-black' : 'border-transparent opacity-50'}`}
-                >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
+            {allImages.length > 1 && (
+              <div className="grid grid-cols-5 gap-2 pb-2 overflow-x-auto scrollbar-hide">
+                {allImages.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`aspect-square border transition-all ${selectedImage === index ? 'border-black' : 'border-transparent opacity-50'}`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* 2. PRODUCT DETAILS (5/12 Width) */}
+          {/* PRODUCT DETAILS */}
           <div className="lg:col-span-5 space-y-8">
             <div className="space-y-4">
               <div className="flex justify-between items-start gap-4">
@@ -159,41 +193,51 @@ export default function ProductDetails() {
               </div>
             </div>
 
-            {/* SELECTION AREA */}
             <div className="space-y-8 border-t border-black/5 pt-8">
-              {/* Color Selection */}
               {product.colors?.length > 0 && (
                 <div className="space-y-4">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-black/40">Color: {selectedColor}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-black/40">
+                    Color: {selectedColor}
+                  </span>
                   <div className="flex gap-3">
                     {product.colors.map((color: string) => (
                       <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      style={{ backgroundColor: color.toLowerCase() }}
-                      className={`w-8 h-8 rounded-full border ${selectedColor === color ? 'ring-2 ring-black ring-offset-2' : 'border-black/10'}`}
-                      title={color}
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        style={{ backgroundColor: color.toLowerCase() }}
+                        className={`w-8 h-8 rounded-full border ${selectedColor === color ? 'ring-2 ring-black ring-offset-2' : 'border-black/10'}`}
+                        title={color}
                       />
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Size Selection */}
               {product.sizes?.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-black/40">Select Size</span>
-                    <button onClick={() => setShowSizeChart(true)} className="text-[9px] font-black uppercase underline tracking-widest">Size Guide</button>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-black/40">
+                      Select Size
+                    </span>
+                    <button
+                      onClick={() => setShowSizeChart(true)}
+                      className="text-[9px] font-black uppercase underline tracking-widest"
+                    >
+                      Size Guide
+                    </button>
                   </div>
                   <div className="grid grid-cols-4 gap-2">
                     {product.sizes.map((size: string) => (
                       <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`py-4 text-[11px] font-black uppercase tracking-widest border transition-all ${selectedSize === size ? 'bg-black text-white border-black' : 'border-black/10 text-black/40 hover:border-black/30'}`}
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`py-4 text-[11px] font-black uppercase tracking-widest border transition-all ${
+                          selectedSize === size
+                            ? 'bg-black text-white border-black'
+                            : 'border-black/10 text-black/40 hover:border-black/30'
+                        }`}
                       >
-                      {size}
+                        {size}
                       </button>
                     ))}
                   </div>
@@ -201,7 +245,10 @@ export default function ProductDetails() {
               )}
             </div>
 
-            {/* ACTION BUTTONS (Desktop) */}
+            {error && (
+              <p className="text-[10px] font-black uppercase tracking-widest text-red-500">{error}</p>
+            )}
+
             <div className="hidden lg:flex gap-3 pt-4 border-t border-black/5">
               <button 
                 onClick={handleAddToCart}
@@ -217,7 +264,6 @@ export default function ProductDetails() {
               </button>
             </div>
 
-            {/* COLLAPSIBLES */}
             <div className="border-t border-black/10 divide-y divide-black/5">
               <details className="group py-5">
                 <summary className="list-none flex justify-between items-center cursor-pointer text-[10px] font-black uppercase tracking-[0.2em]">
