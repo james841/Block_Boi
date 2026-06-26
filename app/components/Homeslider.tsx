@@ -113,7 +113,7 @@ export default function HeroCarousel() {
 
   return (
     <div
-      className=" mt-16 relative w-full h-[70vh] md:h-screen overflow-hidden bg-black select-none"
+      className=" mt-40 relative w-full h-[70vh] md:h-screen overflow-hidden bg-black select-none"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}

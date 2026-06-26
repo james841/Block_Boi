@@ -6,6 +6,7 @@ import PopularProducts from "./components/ProductGrid";
 import GetStartedSection from "./components/GetStartedSection";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import SupportBanner from "./components/SupportBanner";
+import SearchBar from "./components/SearchBar";
 
 
 
@@ -19,6 +20,7 @@ export default function AboutPage() {
   return (
     <div>
       <Homeslider />
+   
        <SupportBanner />
        <PopularProducts/>
 
