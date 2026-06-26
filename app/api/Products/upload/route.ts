@@ -2,15 +2,11 @@
 // Used by Add/Edit Product forms going forward — no more base64 in the DB
 
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { getAdminSession } from "@/lib/adminAuth";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function POST(request: Request) {
+  const supabase = getSupabaseAdmin();
   try {
     const session = await getAdminSession();
     if (!session) {
