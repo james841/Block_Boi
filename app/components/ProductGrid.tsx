@@ -17,46 +17,66 @@ type Product = {
   featuredOnHomepage?: boolean;
 };
 
+// Skeleton shown immediately on page load — page feels instant
+function ProductSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-black/5 border border-black/5">
+      {[...Array(8)].map((_, i) => (
+        <div key={i} className="bg-white">
+          <div className="aspect-[3/4] bg-black/5 animate-pulse" />
+          <div className="p-6 space-y-3">
+            <div className="h-2 w-16 bg-black/5 animate-pulse rounded" />
+            <div className="h-3 w-3/4 bg-black/5 animate-pulse rounded" />
+            <div className="h-4 w-1/3 bg-black/5 animate-pulse rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function PopularProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [activeFilter, setActiveFilter] = useState("all");
   const [likedProducts, setLikedProducts] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState(false);
   const { formatPrice } = useCurrency();
 
-  // Derive unique categories directly from fetched products — no hardcoding
   const categories = Array.from(
     new Set(products.map((p) => p.category).filter(Boolean))
   ) as string[];
 
   useEffect(() => {
+    // Clear old localStorage cache that caused cross-browser inconsistency
+    localStorage.removeItem("featured_products_cache");
     fetchProducts();
     loadLikedProducts();
-    // Clean up any old localStorage cache that was causing cross-browser issues
-    localStorage.removeItem("featured_products_cache");
   }, []);
 
   const fetchProducts = async (isManualRefresh = false) => {
     if (isManualRefresh) setIsRefreshing(true);
-    try {
-      const response = await fetch(`/api/Products/Featured`, {
-        next: { revalidate: 300 },
-      });
+    setError(false);
 
-      if (!response.ok) throw new Error("Failed to fetch");
+    try {
+      const response = await fetch(`/api/Products/Featured`);
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const data = await response.json();
       if (data.success && Array.isArray(data.products)) {
-        const normalized = data.products.map((p: Product) => ({
-          ...p,
-          oldPrice: p.oldPrice === 0 ? null : p.oldPrice,
-        }));
-        setProducts(normalized);
+        setProducts(
+          data.products.map((p: Product) => ({
+            ...p,
+            oldPrice: p.oldPrice === 0 ? null : p.oldPrice,
+          }))
+        );
         if (isManualRefresh) setActiveFilter("all");
       }
-    } catch (error) {
-      console.error("Failed to fetch featured products:", error);
+    } catch (err) {
+      console.error("Failed to fetch featured products:", err);
+      setError(true);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -73,24 +93,13 @@ export default function PopularProducts() {
   };
 
   const loadLikedProducts = () => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("likedProducts");
-      if (saved) setLikedProducts(new Set(JSON.parse(saved)));
-    }
+    const saved = localStorage.getItem("likedProducts");
+    if (saved) setLikedProducts(new Set(JSON.parse(saved)));
   };
 
   const filteredProducts = products.filter((p) =>
     activeFilter === "all" ? true : p.category?.toLowerCase() === activeFilter.toLowerCase()
   );
-
-  if (isLoading) {
-    return (
-      <div className="h-96 flex flex-col items-center justify-center bg-white border-y border-black/5">
-        <div className="w-10 h-10 border-2 border-black/10 border-t-black rounded-full animate-spin mb-4" />
-        <span className="text-[10px] font-black uppercase tracking-[0.3em]">Loading Collection</span>
-      </div>
-    );
-  }
 
   return (
     <section className="bg-white py-24 border-t border-black/5">
@@ -108,7 +117,7 @@ export default function PopularProducts() {
 
           <button
             onClick={() => fetchProducts(true)}
-            disabled={isRefreshing}
+            disabled={isRefreshing || isLoading}
             className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] hover:text-black/50 transition-colors disabled:opacity-40"
           >
             <RefreshCw className={`w-3 h-3 ${isRefreshing ? "animate-spin" : ""}`} />
@@ -116,15 +125,33 @@ export default function PopularProducts() {
           </button>
         </div>
 
-        <div className="mb-12 border-b border-black/5 pb-8">
-          <ProductFilter
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-            categories={categories}
-          />
-        </div>
+        {/* Filter — only show when we have products */}
+        {!isLoading && products.length > 0 && (
+          <div className="mb-12 border-b border-black/5 pb-8">
+            <ProductFilter
+              activeFilter={activeFilter}
+              onFilterChange={setActiveFilter}
+              categories={categories}
+            />
+          </div>
+        )}
 
-        {filteredProducts.length === 0 ? (
+        {/* States */}
+        {isLoading ? (
+          <ProductSkeleton />
+        ) : error ? (
+          <div className="py-32 text-center border border-dashed border-black/10">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20 mb-6">
+              Could not load products
+            </p>
+            <button
+              onClick={() => fetchProducts()}
+              className="text-[10px] font-black uppercase tracking-[0.3em] underline underline-offset-4"
+            >
+              Try again
+            </button>
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="py-32 text-center border border-dashed border-black/10">
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black/20">
               {products.length === 0
@@ -146,6 +173,7 @@ export default function PopularProducts() {
                       src={product.imageUrl}
                       alt={product.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading={index < 4 ? "eager" : "lazy"}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[10px] font-bold uppercase tracking-widest text-black/20">
