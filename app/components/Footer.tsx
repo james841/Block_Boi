@@ -58,7 +58,7 @@ export default function Footer() {
           <div className="space-y-6 text-[11px] font-bold uppercase tracking-widest">
             <div className="flex items-start gap-4 text-white/60 hover:text-white transition-colors group">
               <MapPin className="w-4 h-4 text-white shrink-0" strokeWidth={1.5} />
-              <span className="leading-relaxed">Ologunjobi Estate, Off Tosfol Road, Kwara, NG</span>
+              <span className="leading-relaxed">Lagos, Nigeria</span>
             </div>
             <div className="flex items-center gap-4 text-white/60 hover:text-white transition-colors">
               <Phone className="w-4 h-4 text-white shrink-0" strokeWidth={1.5} />

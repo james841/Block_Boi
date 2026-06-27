@@ -69,7 +69,7 @@ export default function Newsletter() {
           {/* 2. IMAGE SECTION - FULL COLOR */}
           <div className="w-full lg:w-1/2 h-[450px] lg:h-auto overflow-hidden relative">
             <img
-              src="/Images/couples.webp"
+              src="/Images/block9.jpeg"
               alt="Latest Collection"
               className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
             />

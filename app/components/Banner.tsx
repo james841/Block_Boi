@@ -30,7 +30,7 @@ export default function Banner() {
               {/* Image Container */}
               <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
                 <img
-                  src="/Images/block5.png"
+                  src="/Images/block7.jpeg"
                   alt="Men's Collection"
                   className="w-full h-full object-cover grayscale transition-transform duration-700 ease-out group-hover:scale-110"
                 />
@@ -68,7 +68,7 @@ export default function Banner() {
               {/* Image Container */}
               <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
                 <img
-                  src="/Images/block6.png"
+                  src="/Images/block8.jpeg"
                   alt="Women's Collection"
                   className="w-full h-full object-cover grayscale transition-transform duration-700 ease-out group-hover:scale-110"
                 />
