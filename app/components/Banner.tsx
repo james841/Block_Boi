@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 export default function Banner() {
   return (
     <section className="py-24 px-6 sm:px-10 md:px-16 lg:px-24 bg-white relative overflow-hidden">
-      {/* Structural Decorative Elements */}
+    
       <div className="absolute top-0 left-0 w-full h-[1px] bg-black/5" />
       <div className="absolute bottom-0 left-0 w-full h-[1px] bg-black/5" />
 
@@ -32,7 +32,7 @@ export default function Banner() {
                 <img
                   src="/Images/block7.jpeg"
                   alt="Men's Collection"
-                  className="w-full h-full object-cover grayscale transition-transform duration-700 ease-out group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500" />
               </div>
@@ -70,7 +70,7 @@ export default function Banner() {
                 <img
                   src="/Images/block8.jpeg"
                   alt="Women's Collection"
-                  className="w-full h-full object-cover grayscale transition-transform duration-700 ease-out group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500" />
               </div>

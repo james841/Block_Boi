@@ -48,7 +48,7 @@ export default function HeroCarousel() {
         setCurrentIndex((i) => (i + 1) % slides.length);
         setTimeout(() => setShowContent(true), 100);
       }, 400);
-    }, 5000);
+    }, 9000);
     return () => clearInterval(interval);
   }, [slides.length]);
 
@@ -127,8 +127,8 @@ export default function HeroCarousel() {
           return (
             <div
               key={slide.id}
-              className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-                isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+              className={`absolute inset-0 transition-all duration-[5000ms] ease-linear ${
+                isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
               }`}
             >
               <Image
@@ -136,7 +136,9 @@ export default function HeroCarousel() {
                 alt={slide.title}
                 fill
                 priority={isActive}
-                className="object-cover grayscale brightness-50"
+                className={`object-cover transition-transform duration-[5000ms] ease-linear ${
+                  isActive ? 'scale-110' : 'scale-120'
+                }`}
                 sizes="100vw"
               />
               {/* Subtle Vignette overlay */}
