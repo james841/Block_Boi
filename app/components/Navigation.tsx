@@ -7,6 +7,7 @@ import CartIconButton from "./cartIconButton";
 import UserProfileDropdown from "./userprofiledropdown";
 import CurrencySelector from "./CurrencySelector";
 import SearchBar from "./SearchBar";
+import Image from "next/image";
 
 export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,10 +42,12 @@ export default function Navigation() {
           {/* Logo Section - Maximized height & spacing to anchor the visual brand hierarchy */}
           <div className="flex items-center flex-shrink-0">
             <Link href="/" className="flex items-center gap-4 group">
-              <img
+              <Image
                 src="/logoss.png"
                 alt="Block Boi Logo"
-                // Max sizes increased significantly for desktop display rules
+                width={96}
+                height={96}
+                sizes="(max-width: 640px) 64px, (max-width: 1024px) 80px, 96px"
                 className="h-16 sm:h-20 md:h-24 lg:h-26 w-auto object-contain transition-transform duration-500 group-hover:scale-[1.02]"
               />
               <span className="text-3xl sm:text-4xl font-black text-white tracking-tighter uppercase sm:block hidden">
@@ -138,7 +141,7 @@ export default function Navigation() {
       <div className={`fixed top-0 right-0 h-full w-85 bg-[#0d0d0d] border-l border-white/[0.08] shadow-2xl z-50 transition-transform duration-500 ease-in-out md:hidden ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex justify-between items-center px-8 py-6 border-b border-white/[0.08] bg-[#0d0d0d]">
           <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-            <img src="/logoss.png" alt="Block Boi Logo" className="h-14 w-auto object-contain" />
+            <Image src="/logoss.png" alt="Block Boi Logo" className="h-14 w-auto object-contain" width={56} height={56} />
           </Link>
           <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-white">
             <X size={26} />

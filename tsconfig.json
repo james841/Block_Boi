@@ -34,7 +34,7 @@
     ".next/types/**/*.ts,",
     "next-env.d.ts",
     ".next/types/**/*.ts"
-, "app/category/Hats", "app/category/shorts", "scripts/create-admin.js"  ],
+, "app/category/Hats", "app/category/shorts", "scripts/create-admin.js", "scripts/migrate-images.js"  ],
   "exclude": [
     "node_modules"
   ]
